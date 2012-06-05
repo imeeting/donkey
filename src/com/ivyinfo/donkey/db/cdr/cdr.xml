@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap>
+	<typeAlias alias="cdrBean" type="com.ivyinfo.donkey.db.cdr.CdrBean" />
+
+	<!-- 新增CDR记录 -->
+	<insert id="addCdr" parameterClass="cdrBean">
+		INSERT INTO
+		cdr(appid,conference,phone,sipuri,callid,created,starttime,endtime,state)
+		VALUES(#appid#,#conference#,#phone#,#sipuri#,#callid#,#created#,#starttime#,#endtime#,#state#)
+		<selectKey resultClass="int" keyProperty="id">
+			SELECT @@IDENTITY AS ID 
+  			</selectKey>
+	</insert>
+
+	<!-- 更新CDR记录 -->
+	<update id="updateCdr" parameterClass="map">
+		<![CDATA[
+			UPDATE cdr 
+		]]>
+		<dynamic prepend="SET">
+			<isNotNull prepend="," property="starttime">
+				starttime=#starttime#
+				</isNotNull>
+			<isNotNull prepend="," property="endtime">
+				endtime=#endtime#
+				</isNotNull>
+			<isNotNull prepend="," property="state">
+				state=#state#
+				</isNotNull>
+		</dynamic>
+		<![CDATA[
+			WHERE appid=#appid# AND conference=#conference# AND callid=#callid# 
+		]]>
+	</update>
+
+	<!-- 查找CDR记录数 -->
+	<select id="getCdrCount" parameterClass="map" resultClass="String">
+		<![CDATA[
+			SELECT count(*) FROM cdr
+		]]>
+		<dynamic prepend="WHERE">
+			<isNotNull prepend="AND" property="id">
+				id = #id#
+			</isNotNull>
+			<isNotEmpty prepend="AND" property="appid">
+				appid = #appid#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="conference">
+				conference =
+				#conference#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="phone">
+				phone = #phone#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="sipuri">
+				sipuri = #sipuri#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="callid">
+				callid = #callid#
+			</isNotEmpty>
+			<isNotNull prepend="AND" property="querystate">
+				state &gt;= #querystate#
+			</isNotNull>
+			<isNotNull prepend="AND" property="querystarttime">
+				created &gt;
+				#querystarttime#
+			</isNotNull>
+			<isNotNull prepend="AND" property="queryendtime">
+				created &lt;
+				#queryendtime#
+			</isNotNull>
+		</dynamic>
+	</select>
+
+	<!-- 查询CDR记录 -->
+	<select id="queryCdr" parameterClass="map" resultClass="cdrBean">
+		<![CDATA[
+			SELECT id,appid,conference,phone,sipuri,callid,created,starttime,endtime,state,if(COALESCE(endtime,0),(endtime-starttime),0) as duration FROM cdr
+		]]>
+		<dynamic prepend="WHERE">
+			<isNotNull prepend="AND" property="id">
+				id = #id#
+			</isNotNull>
+			<isNotEmpty prepend="AND" property="appid">
+				appid = #appid#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="conference">
+				conference =
+				#conference#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="phone">
+				phone = #phone#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="sipuri">
+				sipuri = #sipuri#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="callid">
+				callid = #callid#
+			</isNotEmpty>
+			<isNotNull prepend="AND" property="querystate">
+				state &gt;= #querystate#
+			</isNotNull>
+			<isNotNull prepend="AND" property="querystarttime">
+				created &gt;
+				#querystarttime#
+			</isNotNull>
+			<isNotNull prepend="AND" property="queryendtime">
+				created &lt;
+				#queryendtime#
+			</isNotNull>
+		</dynamic>
+		<dynamic prepend="order by">
+			<isNotNull property="order">
+				$order$ $orderby$
+			</isNotNull>
+		</dynamic>
+		order by created desc
+		<dynamic prepend="limit">
+			<isNotNull property="start">
+				#start#,#end#
+			</isNotNull>
+		</dynamic>
+	</select>
+
+</sqlMap>

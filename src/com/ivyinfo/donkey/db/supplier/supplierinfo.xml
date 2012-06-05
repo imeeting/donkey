@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap>
+	<typeAlias alias="supplierInfoBean" type="com.ivyinfo.donkey.db.supplier.SupplierInfoBean" />
+	
+	<!-- 新增供应商信息 -->
+	<insert id="AddSupplierInfo" parameterClass="supplierInfoBean">
+		<![CDATA[
+			INSERT INTO t_supplier_info(name,callbackurl,skey,appid)
+			VALUES(#name#,#callbackurl#,#skey#,#appid#)
+		]]>
+	</insert>
+	
+	<!-- 修改供应商信息 -->
+	<update id="UpdSupplierInfo" parameterClass="supplierInfoBean">
+		<![CDATA[
+			UPDATE t_supplier_info SET 
+			name=#name#,callbackurl=#callbackurl#,skey=#skey#,appid=#appid# 
+			WHERE id=#id#
+		]]>
+	</update>
+	
+	<!-- 删除供应商信息 -->
+	<delete id="DelSupplierInfo" parameterClass="String">
+		<![CDATA[
+			DELETE FROM t_supplier_info WHERE id=#id#
+		]]>
+	</delete>
+	
+	<!-- 查找供应商总记录数信息 -->
+	<select id="getSupplierInfoCount" parameterClass="map" resultClass="String">
+		<![CDATA[
+			SELECT count(*) FROM t_supplier_info
+		]]>
+		<dynamic prepend="WHERE">
+			<isNotEmpty prepend="AND" property="id">
+				id = #id#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="name">
+				name = #name#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="callbackurl">
+				callbackurl = #callbackurl#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="key">
+				skey = #key#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="appid">
+				appid = #appid#
+			</isNotEmpty>
+		</dynamic>
+	</select>
+	
+	<!-- 查找供应商信息 -->
+	<select id="getSupplierInfo" parameterClass="map" resultClass="supplierInfoBean">
+		<![CDATA[
+			SELECT * FROM t_supplier_info
+		]]>
+		<dynamic prepend="WHERE">
+			<isNotEmpty prepend="AND" property="id">
+				id = #id#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="name">
+				name = #name#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="callbackurl">
+				callbackurl = #callbackurl#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="key">
+				skey = #key#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="appid">
+				appid = #appid#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic prepend="order by">
+			<isNotNull property="order">
+				$order$ $orderby$
+			</isNotNull>
+		</dynamic>
+		<dynamic prepend="limit">
+			<isNotNull property="from">
+				#from#,#to#
+			</isNotNull>
+		</dynamic>
+	</select>
+	
+</sqlMap>

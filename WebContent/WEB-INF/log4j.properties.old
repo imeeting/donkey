@@ -1,0 +1,31 @@
+#ERROR, WARN, INFO, DEBUG
+log4j.rootLogger=INFO, CONSOLE
+
+log4j.appender.CONSOLE=org.apache.log4j.ConsoleAppender
+log4j.appender.CONSOLE.layout=org.apache.log4j.PatternLayout
+log4j.appender.CONSOLE.layout.ConversionPattern=%d [%t] %-5p %c - %m%n
+
+log4j.appender.I=org.apache.log4j.RollingFileAppender
+log4j.appender.I.Threshold=INFO
+log4j.appender.I.File=${donkey.root}/log/donkey.info.log
+log4j.appender.I.MaxBackupIndex=10
+log4j.appender.I.MaxFileSize=2MB
+log4j.appender.I.layout=org.apache.log4j.PatternLayout
+log4j.appender.I.layout.ConversionPattern=%d [%t] %-5p %c --> %m%n
+
+log4j.appender.E=org.apache.log4j.RollingFileAppender
+log4j.appender.E.Threshold=ERROR
+log4j.appender.E.File=${donkey.root}/log/donkey.error.log
+log4j.appender.E.MaxBackupIndex=10
+log4j.appender.E.MaxFileSize=2MB
+log4j.appender.E.layout=org.apache.log4j.PatternLayout
+log4j.appender.E.layout.ConversionPattern=%d [%t] %-5p %c --> %m%n
+
+#SqlMap logging configuration...
+#log4j.logger.java.sql.Connection=DEBUG
+#log4j.logger.java.sql.Statement=DEBUG
+#log4j.logger.java.sql.PreparedStatement=DEBUG
+#log4j.logger.java.sql.ResultSet=DEBUG
+
+#Spring logging configuration...
+log4j.logger.org.springframework.jdbc.datasource.DataSourceTransactionManager=DEBUG
