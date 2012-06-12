@@ -70,7 +70,7 @@ public class Pager {
 	public String getPreviousPage() {
 		this.previousPage = "";
 		if (this.getHasPrevious()) {
-			this.previousPage = this.PageUrl + "&offset=" + (offset - 1);
+			this.previousPage = this.PageUrl + "?offset=" + (offset - 1);
 		}
 		return previousPage;
 	}
@@ -78,7 +78,7 @@ public class Pager {
 	public String getNextPage() {
 		this.nextPage = "";
 		if (this.getHasNext()) {
-			this.nextPage = this.PageUrl + "&offset=" + (offset + 1);
+			this.nextPage = this.PageUrl + "?offset=" + (offset + 1);
 		}
 		return this.nextPage;
 	}

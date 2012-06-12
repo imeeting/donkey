@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
-import com.ivyinfo.donkey.SpringContextHolder;
+import com.richitec.donkey.ContextLoader;
 
 /**
  * DonkeyDevAppIDInfoManager - manage the operations of developer info
@@ -21,7 +21,7 @@ public class DevAppIDInfoManager {
 		devInfoMap = new ConcurrentHashMap<String, SupplierInfoBean>();
 	
 	private static SupplierInfoDAO dao(){
-		return (SupplierInfoDAO) SpringContextHolder.getBean("supplierInfoDAO");
+		return ContextLoader.getSupplierInfoDAO();
 	}
 
 	/**

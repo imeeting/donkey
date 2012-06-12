@@ -32,7 +32,6 @@ public class DonkeyWebContainerListener extends ContextLoaderListener {
 		
         ServletContext context = event.getServletContext();   
         ApplicationContext appContext = WebApplicationContextUtils.getRequiredWebApplicationContext(context);   
-        SpringContextHolder.setApplicationContext(appContext);
         
         InputStream inStream = context.getResourceAsStream("/WEB-INF/donkey.properties");
         

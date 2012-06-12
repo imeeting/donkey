@@ -5,37 +5,6 @@
 	id="WebApp_ID" version="2.5">
 	<display-name>donkey</display-name>
 	
-	<context-param>
-		<param-name>webAppRootKey</param-name>
-		<param-value>donkey.root</param-value>
-	</context-param>
-	<context-param>
-		<param-name>log4jConfigLocation</param-name>
-		<param-value>/WEB-INF/log4j.properties</param-value>
-	</context-param>
-
-	<!-- 配置Spring -->
-	<context-param>
-		<param-name>contextConfigLocation</param-name>
-		<param-value>/WEB-INF/applicationContext.xml</param-value>
-	</context-param>
-	<filter>
-		<filter-name>encodingFilter</filter-name>
-		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
-		<init-param>
-			<param-name>encoding</param-name>
-			<param-value>UTF-8</param-value>
-		</init-param>
-	</filter>
-
-	<listener>
-		<listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
-	</listener>
-
-	<listener>
-		<listener-class>com.ivyinfo.donkey.DonkeyWebContainerListener</listener-class>
-	</listener>
-
 	<welcome-file-list>
 		<welcome-file>index.html</welcome-file>
 		<welcome-file>index.htm</welcome-file>
@@ -43,8 +12,70 @@
 		<welcome-file>default.html</welcome-file>
 		<welcome-file>default.htm</welcome-file>
 		<welcome-file>default.jsp</welcome-file>
-	</welcome-file-list>
+	</welcome-file-list>	
 	
+	<context-param>
+		<param-name>webAppRootKey</param-name>
+		<param-value>donkey.root</param-value>
+	</context-param>
+
+	<!-- 配置Spring -->
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>/WEB-INF/spring/applicationContext.xml</param-value>
+	</context-param>
+	
+	<context-param>
+		<param-name>log4jConfigLocation</param-name>
+		<param-value>/WEB-INF/config/log4j.properties</param-value>
+	</context-param>
+
+	<listener>
+		<listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+	</listener>
+	
+	<listener>
+		<listener-class>com.richitec.donkey.ContextLoader</listener-class>
+	</listener>
+	
+	<!-- Reads request input using UTF-8 encoding -->
+	<filter>
+		<filter-name>characterEncodingFilter</filter-name>
+		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+		<init-param>
+			<param-name>forceEncoding</param-name>
+			<param-value>true</param-value>
+		</init-param>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>characterEncodingFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	
+	<!-- Handles all requests into the application -->
+	<servlet>
+		<servlet-name>Spring MVC Dispatcher Servlet</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>
+				/WEB-INF/spring/servlet-context.xml
+			</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>Spring MVC Dispatcher Servlet</servlet-name>
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+
+
 	<servlet>
 		<description></description>
 		<display-name>DonkeyApiServlet</display-name>
@@ -54,39 +85,6 @@
 	<servlet-mapping>
 		<servlet-name>DonkeyApiServlet</servlet-name>
 		<url-pattern>/api</url-pattern>
-	</servlet-mapping>
-	
-	<servlet>
-		<description></description>
-		<display-name>AdminLoginServlet</display-name>
-		<servlet-name>AdminLoginServlet</servlet-name>
-		<servlet-class>com.ivyinfo.donkey.admin.servlet.AdminLoginServlet</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>AdminLoginServlet</servlet-name>
-		<url-pattern>/adminlogin</url-pattern>
-	</servlet-mapping>
-	
-	<servlet>
-		<description></description>
-		<display-name>DevInfoManageServlet</display-name>
-		<servlet-name>DevInfoManageServlet</servlet-name>
-		<servlet-class>com.ivyinfo.donkey.admin.servlet.DevInfoManageServlet</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>DevInfoManageServlet</servlet-name>
-		<url-pattern>/devinfomanage</url-pattern>
-	</servlet-mapping>
-	
-	<servlet>
-		<description></description>
-		<display-name>CdrManageServlet</display-name>
-		<servlet-name>CdrManageServlet</servlet-name>
-		<servlet-class>com.ivyinfo.donkey.admin.servlet.CdrManageServlet</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>CdrManageServlet</servlet-name>
-		<url-pattern>/cdrmanage</url-pattern>
 	</servlet-mapping>
 
 	<!-- 导出excel -->
@@ -99,17 +97,6 @@
 	<servlet-mapping>
 		<servlet-name>CdrExportServlet</servlet-name>
 		<url-pattern>/cdrExportServlet</url-pattern>
-	</servlet-mapping>
-
-	<servlet>
-		<description></description>
-		<display-name>AdminLogoutServlet</display-name>
-		<servlet-name>AdminLogoutServlet</servlet-name>
-		<servlet-class>com.ivyinfo.donkey.admin.servlet.AdminLogoutServlet</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>AdminLogoutServlet</servlet-name>
-		<url-pattern>/adminlogout</url-pattern>
 	</servlet-mapping>
 	
 	<servlet>

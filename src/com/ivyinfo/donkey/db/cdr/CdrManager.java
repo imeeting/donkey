@@ -8,16 +8,16 @@ import javax.servlet.sip.SipSession;
 import com.ivyinfo.donkey.CallStatus;
 import com.ivyinfo.donkey.ConferenceManager;
 import com.ivyinfo.donkey.Constant;
-import com.ivyinfo.donkey.SpringContextHolder;
 import com.ivyinfo.donkey.http.api.DonkeyGearman;
 import com.ivyinfo.donkey.http.api.DonkeyGearmanMessage;
 import com.ivyinfo.donkey.http.api.DonkeyResponse;
 import com.ivyinfo.util.DonkeyUtil;
+import com.richitec.donkey.ContextLoader;
 
 public class CdrManager {
 
 	private static CdrDAO dao() {
-		return (CdrDAO) SpringContextHolder.getBean("cdrDAO");
+		return ContextLoader.getCdrDAO();
 	}
 
 	public static int addCdr(CdrBean bean) throws Exception {
