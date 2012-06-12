@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<!-- ========================= GENERAL DEFINITIONS ========================= -->
+	<!-- Configurer that replaces ${...} placeholders with values from a properties 
+		file -->
+	<!-- (in this case, JDBC-related settings for the dataSource definition 
+		below) -->
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>/WEB-INF/config/donkey.properties</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="system_admin" class="com.richitec.donkey.mvc.model.Admin">
+		<property name="name">
+			<value>${admin.name}</value>
+		</property>
+		<property name="password">
+			<value>${admin.password}</value>
+		</property>
+	</bean>
+	
+	<bean id="mysql_connection_pool" 
+		class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close">
+		
+		<property name="driverClass">
+			<value>${jdbc.driverClassName}</value>
+		</property>
+		<property name="jdbcUrl">
+			<value>${jdbc.url}</value>
+		</property>
+		<property name="user">
+			<value>${jdbc.username}</value>
+		</property>
+		<property name="password">
+			<value>${jdbc.password}</value>
+		</property>
+		<property name="acquireIncrement">
+			<value>1</value>
+		</property>			
+		<property name="checkoutTimeout">
+			<value>30000</value>
+		</property>	
+		<property name="preferredTestQuery">
+			<value>SELECT 1</value>
+		</property>
+		<property name="testConnectionOnCheckin">
+			<value>true</value>
+		</property>	
+		<property name="idleConnectionTestPeriod">
+			<value>300</value>
+		</property>
+		<property name="maxIdleTimeExcessConnections">
+			<value>600</value>
+		</property>
+		<property name="unreturnedConnectionTimeout">
+			<value>30</value>
+		</property>	
+		<property name="debugUnreturnedConnectionStackTraces">
+			<value>true</value>
+		</property>			
+		<property name="maxStatementsPerConnection">
+			<value>10</value>
+		</property>	
+		<property name="maxStatements">
+			<value>100</value>
+		</property>				 		
+	</bean>	
+
+	<!-- SqlMap setup for iBATIS Database Layer -->
+	<bean id="sqlMapClient" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+		<property name="configLocation" value="/WEB-INF/sqlMapConfig.xml" />
+		<property name="dataSource" ref="mysql_connection_pool" />
+	</bean>
+
+	<!-- 注入DAO层 -->
+	<bean id="supplierInfoDAO" class="com.ivyinfo.donkey.db.supplier.SupplierInfoDAO">
+		<property name="sqlMapClient" ref="sqlMapClient" />
+	</bean>
+
+	<bean id="cdrDAO" class="com.ivyinfo.donkey.db.cdr.CdrDAO">
+		<property name="sqlMapClient" ref="sqlMapClient" />
+	</bean>
+
+</beans>
