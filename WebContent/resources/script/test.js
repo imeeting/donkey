@@ -7,9 +7,8 @@ $(function() {
 	var confSession;
 
 	$("#btn-create").click(function() {
-		$.ajax("api", {
+		$.ajax("/donkey/conference/create", {
 			data : {
-				m : "create",
 				appid : "100",
 				reqid : "001",
 				sig : "XXXX"
@@ -25,9 +24,8 @@ $(function() {
 	});
 
 	$("#btn-destroy").click(function() {
-		$.ajax("api", {
+		$.ajax("/donkey/conference/destroy", {
 			data : {
-				m : "destroy",
 				appid : "100",
 				reqid : "001",
 				sig : "XXXX",
@@ -95,11 +93,28 @@ $(function() {
 			conference : confSession
 		});
 	});
+	
+	$(".btn-add").click(function() {
+		var attendeeInput = $(this).parent().find(".ipt-attendee");
+		var sipInput = $(this).parent().find(".ipt-sipuri");
+		var sipUri = "sip:" + $(sipInput).val();
+		fclick({
+			m : "add",
+			appid : "100",
+			reqid : "001",
+			sig : "XXXX",
+			conference : confSession,
+			sipuri : sipUri
+		}, function(data) {
+			alert(data.attendee);
+			$(attendeeInput).val(data.attendee);
+		});
+	});	
 
 	$(".btn-join").click(function() {
 		var attendeeInput = $(this).parent().find(".ipt-attendee");
 		var sipInput = $(this).parent().find(".ipt-sipuri");
-		var sipUri = "sip:0" + $(sipInput).val() + "@donkey.com";
+		var sipUri = "sip:" + $(sipInput).val();
 		fclick({
 			m : "join",
 			appid : "100",
@@ -121,10 +136,34 @@ $(function() {
 			reqid : "001",
 			sig : "XXXX",
 			conference : confSession,
-			attendee : attendeeVal
+			sipuri : attendeeVal
 		});
 	});
 
+	$(".btn-call").click(function() {
+		var attendeeVal = $(this).parent().find(".ipt-attendee").val();
+		fclick({
+			m : "call",
+			appid : "100",
+			reqid : "001",
+			sig : "XXXX",
+			conference : confSession,
+			sipuri : attendeeVal
+		});
+	});	
+	
+	$(".btn-hangup").click(function() {
+		var attendeeVal = $(this).parent().find(".ipt-attendee").val();
+		fclick({
+			m : "hangup",
+			appid : "100",
+			reqid : "001",
+			sig : "XXXX",
+			conference : confSession,
+			sipuri : attendeeVal
+		});
+	});		
+	
 	$(".btn-mute").click(function() {
 		var attendeeVal = $(this).parent().find(".ipt-attendee").val();
 		fclick({
@@ -133,7 +172,7 @@ $(function() {
 			reqid : "001",
 			sig : "XXXX",
 			conference : confSession,
-			attendee : attendeeVal
+			sipuri : attendeeVal
 		});
 	});
 
@@ -145,12 +184,12 @@ $(function() {
 			reqid : "001",
 			sig : "XXXX",
 			conference : confSession,
-			attendee : attendeeVal
+			sipuri : attendeeVal
 		});
 	});
 
 	function fclick(postData, fn) {
-		$.ajax("api", {
+		$.ajax("/donkey/conference/" + postData.m, {
 			data : postData,
 			dataType : "json",
 			statusCode : {

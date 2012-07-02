@@ -27,6 +27,45 @@
 		</property>
 	</bean>
 	
+	<bean id="conference_manager" class="com.richitec.donkey.conference.ConferenceManager">
+	</bean>
+	
+	<bean id="actor_manager" class="com.richitec.donkey.conference.actor.ActorManager">
+	</bean>	
+	
+	<bean id="global_config" class="com.richitec.donkey.conference.GlobalConfig">
+		<property name="sipUri">
+			<value>${donkey.sipUri}</value>
+		</property>
+		<property name="outboundIP">
+			<value>${donkey.outbound.ip}</value>
+		</property>	
+		<property name="outboundPort">
+			<value>${donkey.outbound.port}</value>
+		</property>	
+		<property name="mediaServerSipUri">
+			<value>${donkey.mediaServer.sipUri}</value>
+		</property>	
+		<property name="softSwitchSipUri">
+			<value>${donkey.softSwitch.sipUri}</value>
+		</property>	
+		<property name="expire">
+			<value>${donkey.conference.expire}</value>
+		</property>	
+		<property name="delayVoice">
+			<value>${donkey.mediaServer.voice.delay}</value>
+		</property>		
+		<property name="noConferenceVoice">
+			<value>${donkey.mediaServer.voice.noconference}</value>
+		</property>
+		<property name="joinConferenceVoice">
+			<value>${donkey.mediaServer.voice.joinconference}</value>
+		</property>	
+		<property name="inputConferenceVoice">
+			<value>${donkey.mediaServer.voice.inputconference}</value>
+		</property>
+	</bean>
+	
 	<bean id="mysql_connection_pool" 
 		class="com.mchange.v2.c3p0.ComboPooledDataSource"
 		destroy-method="close">

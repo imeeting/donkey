@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!-- Convedia Corporation A0-8497-01-02 -->
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified" xmlns:cvd="http://convedia.com/ext" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:include schemaLocation="moml.xsd"/>
+	<xs:include schemaLocation="msml-datatypes.xsd"/>
+	<xs:import namespace="http://convedia.com/ext" schemaLocation="cvd.xsd"/>
+	<xs:element name="msml">
+		<xs:complexType>
+			<xs:choice>
+				<xs:group ref="msmlRequest" maxOccurs="unbounded"/>
+				<xs:element name="event">
+					<xs:complexType>
+						<xs:choice maxOccurs="unbounded">
+							<xs:sequence>
+								<xs:element name="name" type="msmlEventNameValue.datatype"/>
+								<xs:element name="value">
+									<xs:simpleType>
+										<xs:restriction base="xs:string">
+											<xs:pattern value="[a-zA-Z0-9.]+"/>
+										</xs:restriction>
+									</xs:simpleType>
+								</xs:element>
+							</xs:sequence>
+						</xs:choice>
+						<xs:attribute name="name" type="msmlEventName.datatype" use="required"/>
+						<xs:attribute name="id" type="msmlEventSource.datatype" use="required"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="result">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="description" minOccurs="0">
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:pattern value="[a-zA-Z0-9.-_]+"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+							<xs:choice minOccurs="0" maxOccurs="unbounded">
+								<xs:element name="confid" type="confID.datatype"/>
+								<xs:element name="dialogid" type="dialogID.datatype"/>
+							</xs:choice>
+						</xs:sequence>
+						<xs:attribute name="response">
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:pattern value="\d{3}"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:attribute>
+						<xs:attribute name="mark" type="mark.datatype"/>
+					</xs:complexType>
+				</xs:element>
+			</xs:choice>
+			<xs:attribute name="version" type="xs:string" use="required" fixed="1.1"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:group name="msmlRequest">
+		<xs:choice>
+			<xs:element name="createconference">
+				<xs:complexType>
+					<xs:all>
+						<xs:element name="audiomix" type="audiomixType" minOccurs="0"/>
+						<xs:element name="videolayout" type="videolayoutType" minOccurs="0"/>
+					</xs:all>
+					<xs:attribute name="name" type="msmlInstanceID.datatype"/>
+					<xs:attribute name="deletewhen" use="required">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:enumeration value="nomedia"/>
+								<xs:enumeration value="nocontrol"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+					<xs:attribute name="term" type="boolean.datatype" default="true"/>
+					<xs:attribute ref="mark"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="modifyconference">
+				<xs:complexType>
+					<xs:all>
+						<xs:element name="audiomix" type="audiomixType" minOccurs="0"/>
+						<xs:element name="videolayout" type="videolayoutType" minOccurs="0"/>
+					</xs:all>
+					<xs:attribute name="id" type="confID.datatype" use="required"/>
+					<xs:attribute ref="mark"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="destroyconference">
+				<xs:complexType>
+					<xs:all>
+						<xs:element name="audiomix" type="basicAudioMixType" minOccurs="0"/>
+						<xs:element name="videolayout" type="basicVideoLayoutType" minOccurs="0"/>
+					</xs:all>
+					<xs:attribute name="id" type="confID.datatype" use="required"/>
+					<xs:attribute ref="mark"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="dialogstart">
+				<xs:complexType>
+				<!-- 
+					<xs:sequence>
+						<xs:group ref="momlRequest"/>
+						<xs:element ref="play"></xs:element>
+						<xs:element ref="dtmf"></xs:element>
+					</xs:sequence>
+ 				-->	
+ 					<xs:choice>
+ 						<xs:group ref="momlRequest"/>
+ 						<xs:element name="group">
+ 							<xs:complexType>
+		 						<xs:sequence>
+									<xs:element ref="play"></xs:element>
+									<xs:element ref="dtmf"></xs:element>		 						
+		 						</xs:sequence>
+ 							</xs:complexType>
+ 						</xs:element>
+ 					</xs:choice>				
+					<xs:attribute name="target" type="independentID.datatype" use="required"/>
+					<xs:attribute name="type" type="dialogLanguage.datatype" use="required" fixed="application/moml+xml"/>
+					<xs:attribute name="name" type="msmlInstanceID.datatype"/>
+					<xs:attribute ref="mark"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="dialogend">
+				<xs:complexType>
+					<xs:attribute name="id" type="dialogID.datatype" use="required"/>
+					<xs:attribute ref="mark"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="join">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="stream" type="streamType" minOccurs="0" maxOccurs="4"/>
+					</xs:sequence>
+					<xs:attribute name="id1" type="independentID.datatype" use="required"/>
+					<xs:attribute name="id2" type="independentID.datatype" use="required"/>
+					<xs:attribute ref="mark" />
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="modifystream">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="stream" type="streamType" minOccurs="0" maxOccurs="4"/>
+					</xs:sequence>
+					<xs:attribute name="id1" type="independentID.datatype" use="required"/>
+					<xs:attribute name="id2" type="independentID.datatype" use="required"/>
+					<xs:attribute name="mark" type="mark.datatype"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="unjoin">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="stream" type="basicStreamType" minOccurs="0" maxOccurs="4"/>
+					</xs:sequence>
+					<xs:attribute name="id1" type="independentID.datatype" use="required"/>
+					<xs:attribute name="id2" type="independentID.datatype" use="required"/>
+					<xs:attribute ref="mark"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="reset">
+				<xs:complexType>
+					<xs:attribute name="context" use="required">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:enumeration value="all"/>
+								<xs:enumeration value="annc"/>
+								<xs:enumeration value="conf"/>
+								<xs:enumeration value="dialog"/>
+								<xs:enumeration value="msml"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+					<xs:attribute name="mark" type="mark.datatype"/>
+				</xs:complexType>
+			</xs:element>
+		</xs:choice>
+	</xs:group>
+	<xs:complexType name="basicStreamType">
+		<xs:attribute name="dir">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="to-id1"/>
+					<xs:enumeration value="from-id1"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="media" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="audio"/>
+					<xs:enumeration value="video"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="streamType">
+		<xs:complexContent>
+			<xs:extension base="basicStreamType">
+				<xs:choice minOccurs="0" maxOccurs="unbounded">
+					<xs:element name="gain">
+						<xs:complexType>
+							<xs:attribute name="amt" type="gainAmt.datatype" use="optional"/>
+							<xs:attribute name="agc" type="gainAgc.datatype" use="optional"/>
+							<xs:attribute name="tgtlvl" use="optional">
+								<xs:simpleType>
+									<xs:restriction base="xs:nonPositiveInteger">
+										<xs:minInclusive value="-40"/>
+										<xs:maxInclusive value="0"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:attribute>
+							<xs:attribute name="maxgain" default="10">
+								<xs:simpleType>
+									<xs:restriction base="xs:nonNegativeInteger">
+										<xs:minInclusive value="0"/>
+										<xs:maxInclusive value="40"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:attribute>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="clamp">
+						<xs:complexType>
+							<xs:attribute name="dtmf" type="boolean.datatype"/>
+						</xs:complexType>
+					</xs:element>
+				</xs:choice>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="basicAudioMixType">
+		<xs:attribute name="id" type="xs:string" use="required"/>
+	</xs:complexType>
+	<xs:complexType name="audiomixType">
+		<xs:complexContent>
+			<xs:extension base="basicAudioMixType">
+				<xs:all>
+					<xs:element name="asn" minOccurs="0">
+						<xs:complexType>
+							<xs:attribute name="ri" type="posDuration.datatype" use="required"/>
+							<xs:attribute ref="cvd:asth" default="-96"/>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="n-loudest" minOccurs="0">
+						<xs:complexType>
+							<xs:attribute name="n" use="required">
+								<xs:simpleType>
+									<xs:restriction base="xs:positiveInteger">
+										<xs:minInclusive value="1"/>
+										<xs:maxInclusive value="16"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:attribute>
+						</xs:complexType>
+					</xs:element>
+				</xs:all>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="basicVideoLayoutType">
+		<xs:attribute name="id" type="xs:string" use="required"/>
+		<xs:attribute name="type" type="xs:string" use="required" fixed="text/msml-basic-layout"/>
+	</xs:complexType>
+	<xs:complexType name="videolayoutType">
+		<xs:complexContent>
+			<xs:extension base="basicVideoLayoutType">
+				<xs:choice>
+					<xs:element name="selector">
+						<xs:complexType>
+							<xs:complexContent>
+								<xs:extension base="selectorType">
+									<xs:sequence>
+										<xs:element name="root" type="rootType"/>
+									</xs:sequence>
+								</xs:extension>
+							</xs:complexContent>
+						</xs:complexType>
+					</xs:element>
+				</xs:choice>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="selectorType">
+		<xs:attribute name="id" type="xs:string" use="required"/>
+		<xs:attribute name="method" use="required" fixed="vas">
+			<xs:simpleType>
+				<xs:restriction base="xs:string"/>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="si" type="posDuration.datatype" default="1s"/>
+		<xs:attribute name="speakersees" default="current">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="current"/>
+					<xs:enumeration value="previous"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="rootType">
+		<xs:attribute name="size" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="CIF"/>
+					<xs:enumeration value="QCIF"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute ref="cvd:codec" use="required"/>
+		<xs:attribute ref="cvd:bandwidth" use="required"/>
+		<xs:attribute ref="cvd:mpi" use="required"/>
+		<xs:attribute ref="cvd:bpp" use="optional"/>
+	</xs:complexType>
+	<xs:attribute name="mark" type="mark.datatype"/>
+</xs:schema>

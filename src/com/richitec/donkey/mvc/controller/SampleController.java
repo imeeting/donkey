@@ -1,7 +1,5 @@
 package com.richitec.donkey.mvc.controller;
 
-import javax.servlet.http.HttpSession;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -10,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class SampleController {
 
 	@RequestMapping
-	public String index(HttpSession session){
+	public String index(){
 		return "sample";
 	}
 }

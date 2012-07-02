@@ -29,6 +29,17 @@
 			<mvc:mapping path="/sample/**"/>
 			<bean class="com.richitec.donkey.mvc.SessionInterceptor" />
 		</mvc:interceptor>
+		<mvc:interceptor>
+			<mvc:mapping path="/conference/destroy"/>
+			<mvc:mapping path="/conference/add"/>
+			<mvc:mapping path="/conference/call"/>
+			<mvc:mapping path="/conference/hangup"/>
+			<mvc:mapping path="/conference/join"/>
+			<mvc:mapping path="/conference/unjoin"/>
+			<mvc:mapping path="/conference/mute"/>
+			<mvc:mapping path="/conference/unmute"/>
+			<bean class="com.richitec.donkey.mvc.ConferenceInterceptor"></bean>
+		</mvc:interceptor>
 	</mvc:interceptors>
 
 	<!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources/ directory -->

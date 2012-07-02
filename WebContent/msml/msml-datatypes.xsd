@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!-- Convedia Corporation A0-8497-01-02 -->
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:simpleType name="conferenceType.datatype">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="audio.basic"/>
+			<xs:enumeration value="audio.advanced"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="msmlInstanceID.datatype">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[a-zA-Z0-9.:\-_]+"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="connID.datatype">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="conn:[a-zA-Z0-9.:\-_]+"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="confID.datatype">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="conf:[a-zA-Z0-9.:\-_]+"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="operatorID.datatype">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="conf:[a-zA-Z0-9.:\-_]+(/oper:[a-zA-Z0-9.:\-_]+)+"/>
+			<xs:pattern value="conn:[a-zA-Z0-9.:\-_]+(/oper:[a-zA-Z0-9.:\-_]+)+"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="dialogID.datatype">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="conf:[a-zA-Z0-9.:\-_]+/dialog:[a-zA-Z0-9.:\-_]+"/>
+			<xs:pattern value="conn:[a-zA-Z0-9.:\-_]+/dialog:[a-zA-Z0-9.:\-_]+"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="independentID.datatype">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="conf:[a-zA-Z0-9.:\-_]+"/>
+			<xs:pattern value="conn:[a-zA-Z0-9.:\-_*]+"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="insertID.datatype">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="conf:[a-zA-Z0-9.:\-_]+(/oper:[a-zA-Z0-9.:\-_]+)*"/>
+			<xs:pattern value="conn:[a-zA-Z0-9.:\-_]+(/oper:[a-zA-Z0-9.:\-_]+)*"/>
+			<xs:pattern value="all"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="gainAmt.datatype">
+		<xs:union>
+			<xs:simpleType>
+				<xs:restriction base="xs:integer">
+					<xs:minInclusive value="-96"/>
+					<xs:maxInclusive value="96"/>
+				</xs:restriction>
+			</xs:simpleType>
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="mute"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:union>
+	</xs:simpleType>
+	<xs:simpleType name="gainAgc.datatype">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="true"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="duplex.datatype">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="half"/>
+			<xs:enumeration value="full"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="confclass.datatype">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="standard"/>
+			<xs:enumeration value="preferred"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="dialogLanguage.datatype">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="application/moml+xml"/>
+			<xs:enumeration value="application/voicexml+xml"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="msmlEvent.datatype">
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+	<xs:simpleType name="msmlEventName.datatype">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="msml.dialog.exit"/>
+			<xs:pattern value="msml.conf.asn"/>
+			<xs:pattern value="msml.conf.nomedia"/>
+			<xs:pattern value="msml.dialog.exit"/>
+			<xs:pattern value="[a-zA-Z0-9.:_\-]+"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="msmlTarget.datatype">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="conf:[a-zA-Z0-9.:_\-]+(/oper:[a-zA-Z0-9.:_\-]+|\*)*"/>
+			<xs:pattern value="conn:[a-zA-Z0-9.:_\-]+(/oper:[a-zA-Z0-9.:_\-]+|\*)+"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="msmlEventSource.datatype">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="conf:[a-zA-Z0-9.:_\-]+"/>
+			<xs:pattern value="(conf:[a-zA-Z0-9.:_\-]+|conn:[a-zA-Z0-9.:_-]+)/dialog:[a-zA-Z0-9.:_\-]+"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="msmlEventNameValue.datatype">
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+	<xs:simpleType name="mark.datatype">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[a-zA-Z0-9.:\-_]+"/>
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>

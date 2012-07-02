@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!-- Convedia Corporation A0-8497-01-02 -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="unqualified" attributeFormDefault="unqualified">
+	<xs:include schemaLocation="moml-basic-primitives-module.xsd"/>
+	<xs:element name="moml">
+		<xs:complexType>
+			<xs:choice>
+				<xs:group ref="momlRequest"/>
+				<xs:element ref="event"/>
+			</xs:choice>
+			<xs:attribute name="version" type="xs:string" use="required" fixed="1.0"/>
+			<xs:attribute name="id" type="momlID.datatype" use="required"/>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

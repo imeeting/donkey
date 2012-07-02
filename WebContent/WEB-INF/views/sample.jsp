@@ -14,7 +14,6 @@
 		<%@include file="template/nav.jsp"%>
 
 		<h1>Hello Donkey!</h1>
-
 		<button id="btn-create">Create Conference</button>
 		<button id="btn-destroy">Destroy Conference</button>
 		<button id="btn-playmusic">Play Music</button>
@@ -25,7 +24,10 @@
 
 		<div>
 			<input class="ipt-attendee" type="hidden" /> <input
-				class="ipt-sipuri" type="text" value="13770662051" />
+				class="ipt-sipuri" type="text" value="018652970325@donkey.com" />
+			<button class="btn-add">Add</button>
+			<button class="btn-call">Call</button>
+			<button class="btn-hangup">Hang up</button>
 			<button class="btn-join">Join Conference</button>
 			<button class="btn-unjoin">Unjoin Conference</button>
 			<button class="btn-mute">Mute</button>
@@ -33,7 +35,10 @@
 		</div>
 		<div>
 			<input class="ipt-attendee" type="hidden" /> <input
-				class="ipt-sipuri" type="text" value="13382794516" />
+				class="ipt-sipuri" type="text" value="013382794516@donkey.com" />
+			<button class="btn-add">Add</button>
+			<button class="btn-call">Call</button>
+			<button class="btn-hangup">Hang up</button>				
 			<button class="btn-join">Join Conference</button>
 			<button class="btn-unjoin">Unjoin Conference</button>
 			<button class="btn-mute">Mute</button>
@@ -41,7 +46,10 @@
 		</div>
 		<div>
 			<input class="ipt-attendee" type="hidden" /> <input
-				class="ipt-sipuri" type="text" value="13813005146" />
+				class="ipt-sipuri" type="text" value="1000@122.96.24.173" />
+			<button class="btn-add">Add</button>
+			<button class="btn-call">Call</button>
+			<button class="btn-hangup">Hang up</button>				
 			<button class="btn-join">Join Conference</button>
 			<button class="btn-unjoin">Unjoin Conference</button>
 			<button class="btn-mute">Mute</button>

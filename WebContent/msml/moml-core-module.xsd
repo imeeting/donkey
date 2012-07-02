@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!-- Convedia Corporation A0-8497-01-02 -->
+<xs:schema elementFormDefault="unqualified" attributeFormDefault="unqualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:include schemaLocation="moml-datatypes.xsd"/>
+	<xs:group name="momlRequest">
+		<xs:choice>
+			<xs:group ref="executeType"/>
+			<xs:element ref="send" maxOccurs="unbounded"/>
+		</xs:choice>
+	</xs:group>
+	<xs:element name="primitive" type="primitiveType" abstract="true"/>
+	<xs:complexType name="primitiveType">
+		<xs:attribute name="id" type="momlID.datatype"/>
+	</xs:complexType>
+	<xs:element name="control" type="controlType" abstract="true"/>
+	<xs:complexType name="controlType"/>
+	<xs:group name="executeType">
+		<xs:choice>
+			<xs:element ref="primitive"/>
+			<xs:element ref="control"/>
+		</xs:choice>
+	</xs:group>
+	<xs:group name="sendType">
+		<xs:choice>
+			<xs:element name="exit" type="exitType"/>
+			<xs:sequence>
+				<xs:element ref="send" maxOccurs="unbounded"/>
+				<xs:element name="exit" type="exitType" minOccurs="0"/>
+			</xs:sequence>
+		</xs:choice>
+	</xs:group>
+	<xs:element name="send">
+		<xs:complexType>
+			<xs:attribute name="event" use="required">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:pattern value="app\.[a-zA-Z0-9_-]{1,251}"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:attribute>
+			<xs:attribute name="target" type="xs:string" use="required" fixed="source"/>
+			<xs:attribute name="namelist" type="momlNamelist.datatype"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="exitType">
+		<xs:attribute name="namelist" type="momlNamelist.datatype"/>
+	</xs:complexType>
+	<xs:element name="event">
+		<xs:complexType>
+			<xs:sequence maxOccurs="unbounded">
+				<xs:element name="name" type="xs:string"/>
+				<xs:element name="value" type="xs:string"/>
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="required"/>
+			<xs:attribute name="id" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
