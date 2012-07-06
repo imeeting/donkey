@@ -153,21 +153,7 @@ public class Validater {
 
 		return ret;
 	}
-	
-	public static boolean isSupportedMessage(String m){
-		if (DonkeyGearmanMessage.conf_create.equals(m) ||
-			DonkeyGearmanMessage.conf_join.equals(m) || 
-			DonkeyGearmanMessage.conf_unjoin.equals(m) ||
-			DonkeyGearmanMessage.conf_destroy.equals(m) ||
-			DonkeyGearmanMessage.conn_mute.equals(m) ||
-			DonkeyGearmanMessage.conf_announce.equals(m) ||
-			DonkeyGearmanMessage.conf_info_destroy.equals(m) ||
-			DonkeyGearmanMessage.conf_record.equals(m) ||
-			DonkeyGearmanMessage.conf_stoprecord.equals(m)) {
-			return true;
-		}
-		return false;
-	}
+
 
 	// @test
 	private static String printList(List<String> list) {

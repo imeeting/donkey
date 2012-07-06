@@ -75,49 +75,4 @@
 		<url-pattern>/</url-pattern>
 	</servlet-mapping>
 
-
-	<servlet>
-		<description></description>
-		<display-name>DonkeyApiServlet</display-name>
-		<servlet-name>DonkeyApiServlet</servlet-name>
-		<servlet-class>com.ivyinfo.donkey.http.api.DonkeyApiServlet</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>DonkeyApiServlet</servlet-name>
-		<url-pattern>/api</url-pattern>
-	</servlet-mapping>
-
-	<!-- 导出excel -->
-	<servlet>
-		<description></description>
-		<display-name>CdrExportServlet</display-name>
-		<servlet-name>CdrExportServlet</servlet-name>
-		<servlet-class>com.ivyinfo.donkey.admin.servlet.CdrExportServlet</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>CdrExportServlet</servlet-name>
-		<url-pattern>/cdrExportServlet</url-pattern>
-	</servlet-mapping>
-	
-	<servlet>
-		<description></description>
-		<display-name>GearmanEventNotifyServlet</display-name>
-		<servlet-name>GearmanEventNotifyServlet</servlet-name>
-		<servlet-class>com.ivyinfo.donkey.sample.GearmanEventNotifyServlet</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>GearmanEventNotifyServlet</servlet-name>
-		<url-pattern>/GearmanEventNotify</url-pattern>
-	</servlet-mapping>
-	
-	<servlet>
-		<description></description>
-		<display-name>RecordConfSubscribeServlet</display-name>
-		<servlet-name>RecordConfSubscribeServlet</servlet-name>
-		<servlet-class>com.ivyinfo.donkey.sample.RecordConfSubscribeServlet</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>RecordConfSubscribeServlet</servlet-name>
-		<url-pattern>/RecordConfSubscribe</url-pattern>
-	</servlet-mapping>
 </web-app>

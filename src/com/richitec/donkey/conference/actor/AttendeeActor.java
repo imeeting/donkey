@@ -11,7 +11,6 @@ import javax.servlet.sip.SipFactory;
 import javax.servlet.sip.SipServletRequest;
 import javax.servlet.sip.SipServletResponse;
 import javax.servlet.sip.SipSession;
-import javax.servlet.sip.SipSession.State;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -55,6 +54,7 @@ public class AttendeeActor extends BaseActor {
 	private ActorRef controlChannelActor;
 	
 	public AttendeeActor(String sipUri, ActorRef controlChannelActor){
+		super();
 		this.sipUri = sipUri;
 		this.sipFactory = ContextLoader.getSipFactory();
 		this.config = ContextLoader.getGlobalConfig();
@@ -72,6 +72,7 @@ public class AttendeeActor extends BaseActor {
 	 */
 	public AttendeeActor(SipApplicationSession sipAppSession, SipSession userSession,
 			SipSession mediaServerSession, String sipUri, String conn){
+		super();
 		this.sipAppSession = sipAppSession;
 		this.isUserSessionValid = true;
 		this.userSession = userSession;

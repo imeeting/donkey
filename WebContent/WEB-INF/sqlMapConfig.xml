@@ -4,5 +4,4 @@
     
 <sqlMapConfig>
 	<sqlMap resource="com/ivyinfo/donkey/db/supplier/supplierinfo.xml"/>
-	<sqlMap resource="com/ivyinfo/donkey/db/cdr/cdr.xml"/>
 </sqlMapConfig>

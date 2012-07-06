@@ -37,7 +37,6 @@ import org.apache.commons.logging.LogFactory;
 
 import akka.actor.ActorRef;
 
-import com.ivyinfo.donkey.ms.msml.MSMLHelper;
 import com.richitec.donkey.ContextLoader;
 import com.richitec.donkey.conference.ConferenceManager;
 import com.richitec.donkey.conference.GlobalConfig;
@@ -63,6 +62,8 @@ public class CallInSipServlet extends SipServlet {
     private static final String INVITE = "INVITE";
     private static final String BYE = "BYE";
     private static final String INFO = "INFO";
+    
+    public static final String MSML_CONTENT_TYPE = "application/msml+xml";
     
     private static final String USER_INVITE_REQUEST = "user_invite_request";
     private static final String LINKED_SESSION = "linked_session";
@@ -231,7 +232,7 @@ public class CallInSipServlet extends SipServlet {
     
     private void sendInfo(SipSession mediaServerSession, String content) throws IOException{
     	SipServletRequest info = mediaServerSession.createRequest(INFO);
-    	info.setContent(content, MSMLHelper.MSML_CONTENT_TYPE);
+    	info.setContent(content, MSML_CONTENT_TYPE);
     	info.send();
     }
     

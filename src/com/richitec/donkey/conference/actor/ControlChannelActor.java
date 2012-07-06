@@ -26,8 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.xml.sax.SAXException;
 
-import com.ivyinfo.donkey.ms.msml.MSMLHelper;
-import com.ivyinfo.donkey.sip.SDPHelper;
+import com.ivyinfo.util.RandomString;
 import com.richitec.donkey.ContextLoader;
 import com.richitec.donkey.conference.GlobalConfig;
 import com.richitec.donkey.conference.message.ActorMessage;
@@ -64,6 +63,22 @@ public class ControlChannelActor extends BaseActor {
 	
 	public static final String Cseq = "CSeq";
 	
+	public static final String MSML_CONTENT_TYPE = "application/msml+xml";
+	public static final String SDP_CONTENT_TYPE = "application/sdp";
+
+	public static String getNoMediaSDP() {
+		StringBuilder sb = new StringBuilder();
+		String c = "IN IP4 0.0.0.0";
+		sb.append("v=0\r\n"); // protocol version
+		sb.append("o=-" + " " + RandomString.genRandomNum(6) + " " + RandomString.genRandomNum(6) + " " + c
+				+ "\r\n"); // owner/creator and session identifier (rfc 2327)
+		sb.append("s=futuo session\r\n"); // session name
+		// sb.append("c=" + c + "\r\n"); // connection information - not
+		// required if included in all media
+		sb.append("t=0 0\r\n"); // time the session is active
+		return sb.toString();
+	}
+
 	private JAXBContext jc;
 	private Unmarshaller ju;
 	private Marshaller jm;
@@ -82,6 +97,7 @@ public class ControlChannelActor extends BaseActor {
 	private State state = State.EARLY;
 	
 	public ControlChannelActor() throws JAXBException{
+		super();
 		this.sipFactory = ContextLoader.getSipFactory();
 		this.sipAppSession = sipFactory.createApplicationSession();
 		this.config = ContextLoader.getGlobalConfig();
@@ -144,7 +160,7 @@ public class ControlChannelActor extends BaseActor {
 		SipServletRequest info = controlSession.createRequest(INFO);
 		OutputStream os = new ByteArrayOutputStream();
 		jm.marshal(msml, os);
-		info.setContent(os.toString(), MSMLHelper.MSML_CONTENT_TYPE);
+		info.setContent(os.toString(), MSML_CONTENT_TYPE);
 		if (msmlRequest instanceof Msml.Destroyconference){
 			destroyInfoCSeq = info.getHeader(Cseq);
 			log.debug("CSeq of INFO <destroyconference> : " + destroyInfoCSeq);
@@ -165,8 +181,7 @@ public class ControlChannelActor extends BaseActor {
 		
 		SipServletRequest invite = sipFactory.createRequest(sipAppSession, 
 				INVITE, config.getSipUri(), config.getMediaServerSipUri());
-		invite.setContent(SDPHelper.getNoMediaSDP(),
-				SDPHelper.SDP_CONTENT_TYPE);
+		invite.setContent(getNoMediaSDP(), SDP_CONTENT_TYPE);
 		
 		controlSession = invite.getSession();
 		controlSession.setHandler(ControlChannelSIPServlet.class.getSimpleName());
@@ -221,7 +236,7 @@ public class ControlChannelActor extends BaseActor {
 	private void onControlChannelInfoResponse(ActorMessage.ControlChannelInfoResponse msg) throws UnsupportedEncodingException, IOException, ParserConfigurationException, SAXException, JAXBException{
 		SipServletResponse sipResp = msg.getResponse();
 		String contentType = sipResp.getContentType();
-		if (!MSMLHelper.isMsmlContentType(contentType)){
+		if (!MSML_CONTENT_TYPE.equals(contentType)){
 			log.error("Error content type from Media Server : " + contentType);
 			return;
 		}
@@ -259,7 +274,7 @@ public class ControlChannelActor extends BaseActor {
 	private void onControlChannelInfoRequest(ActorMessage.ControlChannelInfoRequest msg) throws UnsupportedEncodingException, IOException, JAXBException{
 		SipServletRequest request = msg.getRequest();
 		String contentType = request.getContentType();
-		if (!MSMLHelper.isMsmlContentType(contentType)){
+		if (!MSML_CONTENT_TYPE.equals(contentType)){
 			log.error("Error content type from Media Server : " + contentType);
 			return;
 		}

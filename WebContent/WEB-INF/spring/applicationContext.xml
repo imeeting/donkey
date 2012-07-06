@@ -27,6 +27,9 @@
 		</property>
 	</bean>
 	
+	<bean id="donkey_treadpool" class="com.richitec.donkey.DonkeyThreadPool">
+	</bean>
+	
 	<bean id="conference_manager" class="com.richitec.donkey.conference.ConferenceManager">
 	</bean>
 	
@@ -122,10 +125,6 @@
 
 	<!-- 注入DAO层 -->
 	<bean id="supplierInfoDAO" class="com.ivyinfo.donkey.db.supplier.SupplierInfoDAO">
-		<property name="sqlMapClient" ref="sqlMapClient" />
-	</bean>
-
-	<bean id="cdrDAO" class="com.ivyinfo.donkey.db.cdr.CdrDAO">
 		<property name="sqlMapClient" ref="sqlMapClient" />
 	</bean>
 

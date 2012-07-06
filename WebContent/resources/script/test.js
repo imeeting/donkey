@@ -8,6 +8,7 @@ $(function() {
 
 	$("#btn-create").click(function() {
 		$.ajax("/donkey/conference/create", {
+			type : "POST",
 			data : {
 				appid : "100",
 				reqid : "001",

@@ -7,6 +7,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -32,6 +34,7 @@ public class ConferenceController {
 	public static final String Param_RequestId = "reqid";
 	public static final String Param_DeleteWhen = "deleteWhen";
 	public static final String Param_SipUri = "sipuri";
+	public static final String Param_SipUriList = "sipuriList";
 	
 	private ActorManager actorManager;
 	private ConferenceManager conferenceManager;
@@ -45,14 +48,28 @@ public class ConferenceController {
 	@RequestMapping(value="/create")
 	public void create(
 		HttpServletResponse response,
+		@RequestParam(value=Param_Conference, required=false) String confId,
 		@RequestParam(value=Param_DeleteWhen, defaultValue="nocontrol") String deleteWhen,
+		@RequestParam(value=Param_SipUriList, required=false) String sipUriList,
 		@RequestParam(value=Param_AppId) String appId,
-		@RequestParam(value=Param_RequestId) String reqId){
-		String confId = RandomString.genRandomNum(8);
-		ActorRef actor = actorManager.createConference(confId, appId, reqId);
-		conferenceManager.addConferenceActor(confId, actor);
-		actor.tell(new ActorMessage.CmdCreateConference(deleteWhen));
-		DonkeyResponse.Accepted(response, DonkeyResponseMessage.ConferenceSession(confId));
+		@RequestParam(value=Param_RequestId) String reqId) throws IOException, JSONException{
+		log.info("confId : " + confId);
+		if (null == confId || confId.length()==0) {
+			confId = RandomString.genRandomNum(8);
+		}
+		
+		ActorRef actor = conferenceManager.getConferenceActor(confId);
+		if (null == actor){
+			actor = actorManager.createConference(confId, appId, reqId);
+			conferenceManager.addConferenceActor(confId, actor);
+			actor.tell(new ActorMessage.CmdCreateConference(deleteWhen));
+			if (null != sipUriList && sipUriList.length()>0){
+				addAttenddeeFromJSON(confId, sipUriList);
+			}
+			DonkeyResponse.Accepted(response, DonkeyResponseMessage.ConferenceSession(confId));
+		} else {
+			response.sendError(HttpServletResponse.SC_CONFLICT);
+		}
 	}
 	
 	@RequestMapping(value="/destroy")
@@ -80,6 +97,32 @@ public class ConferenceController {
 			DonkeyResponse.Accepted(response, DonkeyResponseMessage.AttendeeSession(confId, sipUri));
 		} else {
 			response.sendError(HttpServletResponse.SC_CONFLICT);
+		}
+		response.setStatus(HttpServletResponse.SC_OK);
+	}
+	
+	@RequestMapping(value="/addmore")
+	public void addMore(
+			HttpServletResponse response,
+			@RequestParam(value=Param_Conference) String confId,
+			@RequestParam(value=Param_SipUriList) String sipUriList,
+			@RequestParam(value=Param_AppId) String appId) throws JSONException{
+		addAttenddeeFromJSON(confId, sipUriList);
+		response.setStatus(HttpServletResponse.SC_OK);
+	}
+	
+	private void addAttenddeeFromJSON(String confId, String sipUriList) {
+		try {
+			JSONArray sipUriJSONArray = new JSONArray(sipUriList);
+			for (int i=0; i< sipUriJSONArray.length(); i++){
+				String sipUri = sipUriJSONArray.getString(i);
+				boolean result = conferenceManager.addAttendeeToConference(sipUri, confId);
+				if (!result){
+					log.warn("Cannot add SIP URI <" + sipUri + "> to conference <" + confId+ ">");
+				}
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
 		}
 	}
 	

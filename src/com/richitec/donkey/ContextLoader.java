@@ -1,7 +1,5 @@
 package com.richitec.donkey;
 
-import java.io.IOException;
-import java.io.InputStream;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -12,10 +10,7 @@ import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import com.ivyinfo.donkey.Configuration;
-import com.ivyinfo.donkey.db.cdr.CdrDAO;
 import com.ivyinfo.donkey.db.supplier.SupplierInfoDAO;
-import com.ivyinfo.donkey.ms.IMediaServer;
 import com.richitec.donkey.conference.ConferenceManager;
 import com.richitec.donkey.conference.GlobalConfig;
 import com.richitec.donkey.conference.actor.ActorManager;
@@ -30,14 +25,6 @@ public class ContextLoader extends ContextLoaderListener {
 		super.contextInitialized(event);
 		ServletContext sc = event.getServletContext();
 		context = WebApplicationContextUtils.getRequiredWebApplicationContext(sc);
-		
-        InputStream inStream = context.getServletContext().getResourceAsStream("/WEB-INF/config/donkey.properties");
-        
-        try {
-        	Configuration.initilize(inStream);
-        } catch (IOException e) {
-        	e.printStackTrace();
-        }
 	}
 	
 	@Override
@@ -65,10 +52,6 @@ public class ContextLoader extends ContextLoaderListener {
 		return (SupplierInfoDAO)context.getBean("supplierInfoDAO");
 	}
 	
-	public static CdrDAO getCdrDAO(){
-		return (CdrDAO)context.getBean("cdrDAO");
-	}
-	
 	public static SipFactory getSipFactory(){
 		return (SipFactory)context.getServletContext().getAttribute("javax.servlet.sip.SipFactory");
 	}
@@ -76,8 +59,8 @@ public class ContextLoader extends ContextLoaderListener {
 	public static SipSessionsUtil getSipSessionsUtil(){
 		return (SipSessionsUtil)context.getServletContext().getAttribute("javax.servlet.sip.SipSessionsUtil");
 	}
-	
-//	public static IMediaServer getMediaServer(){
-//		return (IMediaServer)context.getBean("media_server");
-//	}
+
+	public static DonkeyThreadPool getThreadPool() {
+		return (DonkeyThreadPool)context.getBean("donkey_treadpool");
+	}
 }

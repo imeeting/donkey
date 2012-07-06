@@ -1,7 +1,6 @@
 package com.richitec.donkey.conference.actor;
 
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -15,17 +14,18 @@ import org.apache.commons.logging.LogFactory;
 
 import com.ivyinfo.donkey.db.supplier.DevAppIDInfoManager;
 import com.richitec.donkey.ContextLoader;
+import com.richitec.donkey.DonkeyThreadPool;
 import com.richitec.donkey.conference.ConferenceManager;
 import com.richitec.donkey.conference.message.ActorMessage;
 import com.richitec.donkey.conference.message.ActorMessage.EvtConferenceCreateError;
 import com.richitec.donkey.conference.message.ActorMessage.EvtConferenceCreateSuccess;
 import com.richitec.donkey.conference.message.NotifyMessage;
 import com.richitec.donkey.conference.message.NotifyMessageSender;
-import com.richitec.donkey.conference.message.sip.SendSipRequestMsg;
 
 import akka.actor.Actor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
+import akka.actor.Terminated;
 import akka.actor.UntypedActor;
 import akka.actor.UntypedActorFactory;
 
@@ -44,13 +44,16 @@ public class ConferenceActor extends UntypedActor {
 	
 	private ActorRef controlChannelActor;
 	private Map<String, ActorRef> attendeeActorMap;
+	private DonkeyThreadPool threadPool;
 	
 	public ConferenceActor(String confId, String appId, String reqId){
+		super();
 		this.confId = confId;
 		this.appId = appId;
 		this.reqId = reqId;
 		this.attendeeActorMap = new HashMap<String, ActorRef>();
 		this.notifyUrl = DevAppIDInfoManager.getCallBackURL(appId);
+		this.threadPool = ContextLoader.getThreadPool();
 	}
 	
 	@Override
@@ -100,8 +103,8 @@ public class ConferenceActor extends UntypedActor {
 		if (msg instanceof ActorMessage.ErrAttendeeStatusConflict) {
 			onErrAttendeeStatusConflict((ActorMessage.ErrAttendeeStatusConflict) msg);
 		} else
-		if(msg instanceof SendSipRequestMsg) {
-			onSendSipRequestMsg((SendSipRequestMsg) msg);
+		if (msg instanceof Terminated) {
+			onTermianted((Terminated) msg);
 		} else {
 			unhandled(msg);
 		}		
@@ -120,6 +123,7 @@ public class ConferenceActor extends UntypedActor {
 						return null;
 					}
 				}), ControlChannelActor.Name);
+		getContext().watch(controlChannelActor);
 		controlChannelActor.tell(msg, getSelf());
 		this.state = State.Creating;
 	}
@@ -162,6 +166,7 @@ public class ConferenceActor extends UntypedActor {
 			}), sipUri);
 			
 			attendeeActorMap.put(sipUri, actor);
+			getContext().watch(actor);
 		}
 		
 		actor.tell(msg, getSelf());
@@ -281,17 +286,34 @@ public class ConferenceActor extends UntypedActor {
 		notify(new NotifyMessage.AttendeeStatusConflict(msg.getMethod(), msg.getSipUri(), msg.getState()));
 	}
 	
-	private void onSendSipRequestMsg(SendSipRequestMsg msg) throws IOException{
-		//TODO: execute network operation in tread pool.
-		msg.send(getSender(), getSelf());
+	private void onTermianted(Terminated msg){
+		ActorRef actor = msg.getActor();
+		if (actor == controlChannelActor) {
+			log.info("ControlChannelActor Stopped");
+			controlChannelActor = null;
+		} else {
+			log.info("AttendeeActor Stopped");
+			for (Entry<String, ActorRef> e : attendeeActorMap.entrySet()){
+				if (actor == e.getValue()){
+					attendeeActorMap.remove(e.getKey());
+					break;
+				}
+			}
+		}
+		
+		if (null == controlChannelActor && attendeeActorMap.isEmpty()){
+			log.info("Stop ConferenceActor");
+			getContext().stop(getSelf());
+		}
 	}
 	
 	private void notify(NotifyMessage.Message msg){
 		msg.put(NotifyMessage.appId, this.appId);
 		msg.put(NotifyMessage.reqId, this.reqId);
 		msg.put(NotifyMessage.conference, this.confId);
-//		NotifyMessageSender sender = new NotifyMessageSender(msg, notifyUrl);
+		NotifyMessageSender sender = new NotifyMessageSender(msg, notifyUrl);
 		log.info("\nNotify : " + msg);
+		threadPool.submit(sender);
 	}
 	
 }
