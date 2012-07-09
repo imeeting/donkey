@@ -3,10 +3,6 @@ package com.ivyinfo.util;
 import java.util.Vector;
 import java.util.regex.Pattern;
 
-import javax.servlet.sip.SipServletRequest;
-import javax.servlet.sip.SipSession;
-
-import com.ivyinfo.donkey.ConferenceManager;
 
 public class DonkeyUtil {
 
@@ -19,22 +15,6 @@ public class DonkeyUtil {
 
 		if (!userSipUri.startsWith(SipUriPrefix)) {
 			ret = SipUriPrefix + userSipUri + SipUriPostfix;
-		}
-
-		return ret;
-	}
-
-	public static SipSession checkMatchedSession(SipSession session,
-			String matchString) {
-		// define return result
-		SipSession ret = session;
-
-		SipServletRequest invite = (SipServletRequest) session
-				.getAttribute(matchString);
-
-		if (null == invite) {
-			ret = (SipSession) session
-					.getAttribute(ConferenceManager.LINKED_SESSION);
 		}
 
 		return ret;
