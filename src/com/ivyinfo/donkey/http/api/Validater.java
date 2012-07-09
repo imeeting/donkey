@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.catalina.util.HexUtils;
 import org.apache.log4j.Logger;
 
-import com.ivyinfo.donkey.ConferenceManager;
 import com.ivyinfo.donkey.Constant;
 import com.ivyinfo.donkey.db.supplier.DevAppIDInfoManager;
 import com.ivyinfo.donkey.db.supplier.SupplierInfoBean;
@@ -29,7 +28,6 @@ public class Validater {
 		String sig = request.getParameter(Constant.Signature);
 		if (isValidAppID(appid) &&
 			isValidReqID(reqid) &&
-			isValidMethod(m) &&
 			isValidSignature(request, sig)){
 			return true;
 		}
@@ -65,29 +63,6 @@ public class Validater {
 			return false;
 		}
 		return true;
-	}
-	
-	private static boolean isValidMethod(String m){
-		if (null == m || !isSupportedMethod(m)){
-			return false;
-		}
-		return true;
-	}
-	
-	private static boolean isSupportedMethod(String m){
-		if (ConferenceManager.Create.equals(m) ||
-			ConferenceManager.Join.equals(m) || 
-			ConferenceManager.Unjoin.equals(m) ||
-			ConferenceManager.Destroy.equals(m) ||
-			ConferenceManager.Mute.equals(m) ||
-			ConferenceManager.Unmute.equals(m) ||
-			ConferenceManager.Announce.equals(m) ||
-			ConferenceManager.Stopannounce.equals(m) ||
-			ConferenceManager.Record.equals(m) ||
-			ConferenceManager.Stoprecord.equals(m)) {
-			return true;
-		}
-		return false;
 	}
 
 	private static boolean isValidSignature(HttpServletRequest request,
