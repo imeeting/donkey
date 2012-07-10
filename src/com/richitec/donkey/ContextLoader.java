@@ -10,11 +10,11 @@ import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import com.ivyinfo.donkey.db.supplier.SupplierInfoDAO;
 import com.richitec.donkey.conference.ConferenceManager;
 import com.richitec.donkey.conference.GlobalConfig;
 import com.richitec.donkey.conference.actor.ActorManager;
 import com.richitec.donkey.mvc.model.Admin;
+import com.richitec.donkey.mvc.model.ApplicationDAO;
 
 public class ContextLoader extends ContextLoaderListener {
 	
@@ -48,10 +48,6 @@ public class ContextLoader extends ContextLoaderListener {
 		return (Admin)context.getBean("system_admin");
 	}
 	
-	public static SupplierInfoDAO getSupplierInfoDAO(){
-		return (SupplierInfoDAO)context.getBean("supplierInfoDAO");
-	}
-	
 	public static SipFactory getSipFactory(){
 		return (SipFactory)context.getServletContext().getAttribute("javax.servlet.sip.SipFactory");
 	}
@@ -62,5 +58,9 @@ public class ContextLoader extends ContextLoaderListener {
 
 	public static DonkeyThreadPool getThreadPool() {
 		return (DonkeyThreadPool)context.getBean("donkey_treadpool");
+	}
+
+	public static ApplicationDAO getApplicationDAO() {
+		return (ApplicationDAO) context.getBean("application_dao");
 	}
 }

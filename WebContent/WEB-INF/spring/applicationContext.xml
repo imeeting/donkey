@@ -116,16 +116,9 @@
 			<value>100</value>
 		</property>				 		
 	</bean>	
-
-	<!-- SqlMap setup for iBATIS Database Layer -->
-	<bean id="sqlMapClient" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
-		<property name="configLocation" value="/WEB-INF/sqlMapConfig.xml" />
-		<property name="dataSource" ref="mysql_connection_pool" />
-	</bean>
-
-	<!-- 注入DAO层 -->
-	<bean id="supplierInfoDAO" class="com.ivyinfo.donkey.db.supplier.SupplierInfoDAO">
-		<property name="sqlMapClient" ref="sqlMapClient" />
+	
+	<bean id="application_dao" class="com.richitec.donkey.mvc.model.ApplicationDAO">
+		<property name="dataSource" ref="mysql_connection_pool"></property>
 	</bean>
 
 </beans>

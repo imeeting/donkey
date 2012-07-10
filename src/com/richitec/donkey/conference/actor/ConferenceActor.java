@@ -12,7 +12,6 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.ivyinfo.donkey.db.supplier.DevAppIDInfoManager;
 import com.richitec.donkey.ContextLoader;
 import com.richitec.donkey.DonkeyThreadPool;
 import com.richitec.donkey.conference.ConferenceManager;
@@ -21,6 +20,7 @@ import com.richitec.donkey.conference.message.ActorMessage.EvtConferenceCreateEr
 import com.richitec.donkey.conference.message.ActorMessage.EvtConferenceCreateSuccess;
 import com.richitec.donkey.conference.message.NotifyMessage;
 import com.richitec.donkey.conference.message.NotifyMessageSender;
+import com.richitec.donkey.mvc.model.ApplicationDAO;
 
 import akka.actor.Actor;
 import akka.actor.ActorRef;
@@ -52,8 +52,10 @@ public class ConferenceActor extends UntypedActor {
 		this.appId = appId;
 		this.reqId = reqId;
 		this.attendeeActorMap = new HashMap<String, ActorRef>();
-		this.notifyUrl = DevAppIDInfoManager.getCallBackURL(appId);
 		this.threadPool = ContextLoader.getThreadPool();
+		
+		ApplicationDAO dao = ContextLoader.getApplicationDAO();
+		this.notifyUrl = dao.getCallbackURL(appId);
 	}
 	
 	@Override

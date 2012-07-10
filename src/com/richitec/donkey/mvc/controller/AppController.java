@@ -3,6 +3,7 @@ package com.richitec.donkey.mvc.controller;
 import java.io.PrintWriter;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
@@ -15,18 +16,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.ivyinfo.donkey.Constant;
-import com.ivyinfo.donkey.db.supplier.DevAppIDInfoManager;
 import com.ivyinfo.donkey.db.supplier.SupplierInfoBean;
 import com.ivyinfo.donkey.http.api.DonkeyResponse;
 import com.ivyinfo.donkey.http.api.DonkeyResponseMessage;
 import com.ivyinfo.util.Pager;
 import com.ivyinfo.util.RandomString;
+import com.richitec.donkey.ContextLoader;
+import com.richitec.donkey.mvc.model.ApplicationDAO;
 
 @Controller
 @RequestMapping(value="/app")
 public class AppController {
 	
 	private static Log log = LogFactory.getLog(AppController.class);
+	
+	private ApplicationDAO applicationDAO;
+	
+	@PostConstruct
+	public void init(){
+		applicationDAO = ContextLoader.getApplicationDAO();
+	}
 	
 	@RequestMapping
 	public String index(HttpSession session){
@@ -45,15 +54,12 @@ public class AppController {
 			@RequestParam(value="offset", required=false, defaultValue="1") Integer offset) throws Exception{
 		
 		int pageSize = 10;
-		int all = DevAppIDInfoManager.getAllSupplierInfoCount();
+		int all = applicationDAO.getAllSupplierInfoCount();
 		
 		log.debug("getAllDevInfo - total count: " + all);
 		
-		SupplierInfoBean queryBean = new SupplierInfoBean();
-		queryBean.setFrom((offset - 1) * pageSize);
-		queryBean.setTo(pageSize);
-		
-		List<SupplierInfoBean> list = DevAppIDInfoManager.getSupplierInfos(queryBean);
+		List<SupplierInfoBean> list = 
+			applicationDAO.getSupplierInfos((offset - 1) * pageSize, pageSize);
 		log.debug("getAllDevInfo - list size: " + list.size());
 		JSONArray infoArray = new JSONArray();
 		if (list.size() > 0) {
@@ -97,7 +103,7 @@ public class AppController {
 				for (int i = 0; i < appidArray.length; i++) {
 					String appid = appidArray[i];
 					if (appid != null && !appid.equals("")) {
-						DevAppIDInfoManager.deleteSupplierInfoByAppid(appid);
+						applicationDAO.deleteSupplierInfoByAppid(appid);
 					}
 				}
 			}
@@ -110,16 +116,13 @@ public class AppController {
 			HttpServletResponse response,
 			@RequestParam(value="id") String id,
 			@RequestParam(value="callbackurl") String callbackurl) throws Exception{
-		if (id != null && callbackurl != null && !id.equals("")
-				&& !callbackurl.equals("")) {
-			SupplierInfoBean queryBean = new SupplierInfoBean();
-			queryBean.setId(id);
-			SupplierInfoBean editBean = DevAppIDInfoManager.querySupplierInfo(queryBean);
-			editBean.setCallbackurl(callbackurl);
-			DevAppIDInfoManager.updateSupplierInfo(editBean);
+		int r = applicationDAO.updateCallBackURL(id, callbackurl);
+		if (r == 1){
 			response.setStatus(HttpServletResponse.SC_OK);
+		} else if (r == 0) {
+			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 		} else {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			// more records have same primary key 'id'
 		}
 	}
 	
@@ -128,31 +131,28 @@ public class AppController {
 			HttpServletResponse response,
 			@RequestParam(value="name") String name,
 			@RequestParam(value="callbackurl") String callbackURL) throws Exception{
-		if (name != null && !name.equals("")) {
-			// fist check if the name exists in the database
-			SupplierInfoBean queryBean = new SupplierInfoBean();
-			queryBean.setName(name);
-			SupplierInfoBean ret = DevAppIDInfoManager.querySupplierInfo(queryBean);
-			if (ret != null) {
-				
-				DonkeyResponse.Conflict(response, DonkeyResponseMessage
-						.GeneralError("Name exists! Try another name!"));
-				return;
-			}
-
-			String appID = RandomString.genRandomNum(8);
-			String key = RandomString.genRandomChars(8);
-
-			SupplierInfoBean bean = new SupplierInfoBean();
-			bean.setAppid(appID);
-			bean.setSkey(key);
-			bean.setName(name);
-			bean.setCallbackurl(callbackURL);
-
-			DevAppIDInfoManager.addSupplierInfo(bean);
-			response.setStatus(HttpServletResponse.SC_OK);
-		} else {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		/*
+		// fist check if the name exists in the database
+		SupplierInfoBean queryBean = new SupplierInfoBean();
+		queryBean.setName(name);
+		SupplierInfoBean ret = DevAppIDInfoManager.querySupplierInfo(queryBean);
+		if (ret != null) {
+			
+			DonkeyResponse.Conflict(response, DonkeyResponseMessage
+					.GeneralError("Name exists! Try another name!"));
+			return;
 		}
+		*/
+		String appID = RandomString.genRandomNum(8);
+		String key = RandomString.genRandomChars(8);
+
+		SupplierInfoBean bean = new SupplierInfoBean();
+		bean.setAppid(appID);
+		bean.setSkey(key);
+		bean.setName(name);
+		bean.setCallbackurl(callbackURL);
+
+		applicationDAO.addSupplierInfo(bean);
+		response.setStatus(HttpServletResponse.SC_OK);
 	}
 }
