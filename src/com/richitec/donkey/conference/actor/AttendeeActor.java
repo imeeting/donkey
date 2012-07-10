@@ -26,7 +26,15 @@ public class AttendeeActor extends BaseActor {
 	
 	private static Log log = LogFactory.getLog(AttendeeActor.class);
 	
-	public enum AttendeeState {INITIAL, CALL_MS, CALL_USER, CONFIRMED, TERM_WAIT, DESTROY};
+	public enum AttendeeState {
+		INITIAL, 
+		CALL_MS, 
+		CALL_USER, 
+		CALL_FAILED, 
+		CONFIRMED, 
+		TERM_WAIT, 
+		DESTROY 
+	};
 	
 	private AttendeeState state;
 	
@@ -214,12 +222,12 @@ public class AttendeeActor extends BaseActor {
 		int status = response.getStatus();
 		SipSession sipSession = response.getSession(false);
 		if (sipSession.equals(mediaServerSession)){
-			this.state = AttendeeState.TERM_WAIT;
+			this.state = AttendeeState.CALL_FAILED;
 			log.error("INVITE meida server failed with status: " + status);
 			getContext().parent().tell(new ActorMessage.EvtMediaServerCallFailed(this.sipUri, status), getSelf());
 		} else if (sipSession.equals(userSession)){
 			//send BYE to media server session
-			this.state = AttendeeState.TERM_WAIT;
+			this.state = AttendeeState.CALL_FAILED;
 			SipServletRequest bye = mediaServerSession.createRequest(BYE);
 			send(bye);
 			
@@ -321,7 +329,9 @@ public class AttendeeActor extends BaseActor {
 		} else if (this.state == AttendeeState.CONFIRMED) {
 			this.state = AttendeeState.DESTROY;
 			bye(mediaServerSession);
-			bye(userSession);			
+			bye(userSession);
+		} else if (this.state == AttendeeState.CALL_FAILED) {
+			this.state = AttendeeState.DESTROY;
 		} else if (this.state == AttendeeState.TERM_WAIT) {
 			this.state = AttendeeState.DESTROY;
 		} 
@@ -341,6 +351,8 @@ public class AttendeeActor extends BaseActor {
 			if (this.state == AttendeeState.TERM_WAIT) {
 				this.state = AttendeeState.INITIAL;
 				getContext().parent().tell(new ActorMessage.EvtAttendeeCallTerminated(sipUri), getSelf());
+			} else if (this.state == AttendeeState.CALL_FAILED) {
+				this.state = AttendeeState.INITIAL;
 			} else if (this.state == AttendeeState.DESTROY){
 				getContext().stop(getSelf());
 			} else {

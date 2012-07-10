@@ -141,6 +141,9 @@ public class ActorMessage {
 		}
 	}	
 	
+	/**
+	 * 如果电话呼入会议时，该会议的状态不是Created，则向AttendeeActor发送该消息。
+	 */
 	public static class ErrConferenceStatusConflict {
 		private ConferenceActor.State state;
 		public ErrConferenceStatusConflict(ConferenceActor.State state){
