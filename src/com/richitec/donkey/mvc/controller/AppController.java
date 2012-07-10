@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.ivyinfo.donkey.Constant;
-import com.ivyinfo.donkey.db.supplier.SupplierInfoBean;
 import com.ivyinfo.donkey.http.api.DonkeyResponse;
 import com.ivyinfo.donkey.http.api.DonkeyResponseMessage;
 import com.ivyinfo.util.Pager;
@@ -54,28 +53,13 @@ public class AppController {
 			@RequestParam(value="offset", required=false, defaultValue="1") Integer offset) throws Exception{
 		
 		int pageSize = 10;
-		int all = applicationDAO.getAllSupplierInfoCount();
+		int all = applicationDAO.getApplicationCount();
 		
 		log.debug("getAllDevInfo - total count: " + all);
 		
-		List<SupplierInfoBean> list = 
-			applicationDAO.getSupplierInfos((offset - 1) * pageSize, pageSize);
-		log.debug("getAllDevInfo - list size: " + list.size());
-		JSONArray infoArray = new JSONArray();
-		if (list.size() > 0) {
-			for (int i = 0; i < list.size(); i++) {
-				SupplierInfoBean bean = list.get(i);
-				
-				JSONObject devinfo = new JSONObject();
-				devinfo.put(Constant.ID, bean.getId());
-				devinfo.put("name", bean.getName());
-				devinfo.put("appid", bean.getAppid());
-				devinfo.put("appkey", bean.getSkey());
-				devinfo.put("callbackurl", bean.getCallbackurl());
-				infoArray.put(devinfo);
-			}
-		}
-		
+		List<JSONObject> list = 
+			applicationDAO.getApplications((offset - 1) * pageSize, pageSize);
+		log.debug("getApplications - list size: " + list.size());
 		Pager pager = new Pager(offset, pageSize, all, "/donkey/app/list");
 		
 		JSONObject data = new JSONObject();
@@ -84,7 +68,7 @@ public class AppController {
 		jsonPager.put(Constant.Previous, pager.getPreviousPage());
 		jsonPager.put(Constant.Next, pager.getNextPage());
 		jsonPager.put(Constant.PageNumber, pager.getPageNumber());
-		data.put(Constant.List, infoArray);
+		data.put(Constant.List, list);
 		data.put(Constant.Pager, jsonPager);
 		String msg = data.toString();
 
@@ -103,7 +87,7 @@ public class AppController {
 				for (int i = 0; i < appidArray.length; i++) {
 					String appid = appidArray[i];
 					if (appid != null && !appid.equals("")) {
-						applicationDAO.deleteSupplierInfoByAppid(appid);
+						applicationDAO.delApplicationByAppId(appid);
 					}
 				}
 			}
@@ -131,28 +115,9 @@ public class AppController {
 			HttpServletResponse response,
 			@RequestParam(value="name") String name,
 			@RequestParam(value="callbackurl") String callbackURL) throws Exception{
-		/*
-		// fist check if the name exists in the database
-		SupplierInfoBean queryBean = new SupplierInfoBean();
-		queryBean.setName(name);
-		SupplierInfoBean ret = DevAppIDInfoManager.querySupplierInfo(queryBean);
-		if (ret != null) {
-			
-			DonkeyResponse.Conflict(response, DonkeyResponseMessage
-					.GeneralError("Name exists! Try another name!"));
-			return;
-		}
-		*/
 		String appID = RandomString.genRandomNum(8);
 		String key = RandomString.genRandomChars(8);
-
-		SupplierInfoBean bean = new SupplierInfoBean();
-		bean.setAppid(appID);
-		bean.setSkey(key);
-		bean.setName(name);
-		bean.setCallbackurl(callbackURL);
-
-		applicationDAO.addSupplierInfo(bean);
+		applicationDAO.addApplication(name, callbackURL, key, appID);
 		response.setStatus(HttpServletResponse.SC_OK);
 	}
 }
