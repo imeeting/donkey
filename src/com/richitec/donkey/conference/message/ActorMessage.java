@@ -317,5 +317,15 @@ public class ActorMessage {
 			return this.session;
 		}
 	}
+	
+	public static class SipAppSessionExpired {
+		private SipApplicationSession sipAppSession;
+		public SipAppSessionExpired(SipApplicationSession session){
+			this.sipAppSession = session;
+		}
+		public SipApplicationSession getSipAppSession() {
+			return this.sipAppSession;
+		}
+	}
 
 }

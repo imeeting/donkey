@@ -6,6 +6,11 @@ import javax.servlet.sip.SipApplicationSessionEvent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.richitec.donkey.conference.actor.ControlChannelActor;
+import com.richitec.donkey.conference.message.ActorMessage;
+
+import akka.actor.ActorRef;
+
 @javax.servlet.sip.annotation.SipListener
 public class SipApplicationSessionListener 
 		implements javax.servlet.sip.SipApplicationSessionListener {
@@ -24,15 +29,35 @@ public class SipApplicationSessionListener
 
 	@Override
 	public void sessionExpired(SipApplicationSessionEvent ev) {
-		log.debug("\nAPP SESSION <" + ev.getApplicationSession().getId() + "> Expired");
-		SipApplicationSession session = ev.getApplicationSession();
-		int r = session.setExpires(30);
-		log.debug("APP setExpires = " + r);
+		SipApplicationSession sipAppSession = ev.getApplicationSession();
+		log.debug("\nAPP SESSION <" + sipAppSession.getId() + "> Expired");
+		
+		Integer expireMinutes =
+			(Integer) sipAppSession.getAttribute(ControlChannelActor.ExpireMinutes);
+		if (null == expireMinutes){
+			//this SipApplicationSession is not control channel
+			sipAppSession.setExpires(10);
+		} else {
+			//control channel SipApplicationSession
+			if (expireMinutes > 0){
+				expireMinutes -= 10;
+				sipAppSession.setAttribute(ControlChannelActor.ExpireMinutes, expireMinutes);
+				sipAppSession.setExpires(10);
+				if (expireMinutes <= 0){
+					ActorRef actor = 
+						(ActorRef) sipAppSession.getAttribute(ControlChannelActor.Actor);
+					if (null != actor){
+						actor.tell(new ActorMessage.SipAppSessionExpired(sipAppSession));
+					}
+				}
+			}
+		}
 	}
 
 	@Override
 	public void sessionReadyToInvalidate(SipApplicationSessionEvent ev) {
-		log.debug("\nAPP SESSION <" + ev.getApplicationSession().getId() + "> ReadyToInvalidate");	
+		SipApplicationSession sipAppSession = ev.getApplicationSession();
+		log.debug("\nAPP SESSION <" + sipAppSession.getId() + "> ReadyToInvalidate");	
 	}
 
 }

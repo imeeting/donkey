@@ -93,14 +93,17 @@ public class ControlChannelActor extends BaseActor {
 	private GlobalConfig config;
 	
 	private enum State {EARLY, INVITE, CHANNEL_CREATED, CONF_CREATED};
-	
 	private State state = State.EARLY;
+	
+	public static final String ExpireMinutes = "expire_minutes";
 	
 	public ControlChannelActor() throws JAXBException{
 		super();
+		this.config = ContextLoader.getGlobalConfig();
 		this.sipFactory = ContextLoader.getSipFactory();
 		this.sipAppSession = sipFactory.createApplicationSession();
-		this.config = ContextLoader.getGlobalConfig();
+		this.sipAppSession.setAttribute(Actor, getSelf());
+		this.sipAppSession.setAttribute(ExpireMinutes, config.getExpire());
 		this.jc = JAXBContext.newInstance(Msml.class);
 		this.ju = jc.createUnmarshaller();
 		this.jm = jc.createMarshaller();
@@ -133,7 +136,7 @@ public class ControlChannelActor extends BaseActor {
 			onCmdDestroyConference((ActorMessage.CmdDestroyConference) msg);	
 		} else 
 		if (msg instanceof ActorMessage.EvtAttendeeCallEstablished){
-			onEAttendeeCallEstablished((ActorMessage.EvtAttendeeCallEstablished) msg);
+			onEvtAttendeeCallEstablished((ActorMessage.EvtAttendeeCallEstablished) msg);
 		} else
 		if (msg instanceof ActorMessage.CmdMuteAttendee) {
 			onCmdMuteAttendee((ActorMessage.CmdMuteAttendee) msg);
@@ -144,6 +147,9 @@ public class ControlChannelActor extends BaseActor {
 		if (msg instanceof ActorMessage.SipSessionReadyToInvalidate) {
 			onSipSessionReadyToInvalidate((ActorMessage.SipSessionReadyToInvalidate) msg);
 		} else 
+		if (msg instanceof ActorMessage.SipAppSessionExpired) {
+			onSipAppSessionExpired((ActorMessage.SipAppSessionExpired) msg);
+		} else
 		if (msg instanceof SendSipRequestCompleteMsg){
 			onSendSipRequestCompleteMsg((SendSipRequestCompleteMsg) msg);
 		} else if (msg instanceof SendSipRequestErrorMsg) {
@@ -287,7 +293,7 @@ public class ControlChannelActor extends BaseActor {
 		}
 	}
 	
-	private void onCmdDestroyConference(ActorMessage.CmdDestroyConference msg) throws UnsupportedEncodingException, JAXBException{
+	private void destroyConference() throws UnsupportedEncodingException, JAXBException{
 		if (NoControl.equals(deleteWhen)){
 			byeControlChannel();
 		} else if (NoMedia.equals(deleteWhen)) {
@@ -299,13 +305,17 @@ public class ControlChannelActor extends BaseActor {
 		}
 	}
 	
+	private void onCmdDestroyConference(ActorMessage.CmdDestroyConference msg) throws UnsupportedEncodingException, JAXBException{
+		destroyConference();
+	}
+	
 	private void byeControlChannel(){
 		//TODO: notify ConferenceActor that the conference is terminated.
 		SipServletRequest bye = controlSession.createRequest(BYE);
 		send(bye);
 	}
 	
-	private void onEAttendeeCallEstablished(ActorMessage.EvtAttendeeCallEstablished msg) throws UnsupportedEncodingException, JAXBException{
+	private void onEvtAttendeeCallEstablished(ActorMessage.EvtAttendeeCallEstablished msg) throws UnsupportedEncodingException, JAXBException{
 		Msml.Join join = new Msml.Join();
 		join.setId1(mediaServerConfId);
 		join.setId2("conn:" + msg.getConn());
@@ -350,6 +360,10 @@ public class ControlChannelActor extends BaseActor {
 		getContext().stop(getSelf());
 	}
 	
+	private void onSipAppSessionExpired(ActorMessage.SipAppSessionExpired msg) throws UnsupportedEncodingException, JAXBException{
+		log.info("\n");
+		destroyConference();
+	}
 	
 	private void onSendSipRequestCompleteMsg(SendSipRequestCompleteMsg msg) {
 		//TODO:
