@@ -11,8 +11,6 @@ import org.json.JSONObject;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
-import com.ivyinfo.donkey.Constant;
-
 public class ApplicationDAO {
 	
 	private JdbcTemplate jdbc;
