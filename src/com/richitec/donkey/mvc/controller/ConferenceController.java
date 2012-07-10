@@ -98,7 +98,7 @@ public class ConferenceController {
 		} else {
 			response.sendError(HttpServletResponse.SC_CONFLICT);
 		}
-		response.setStatus(HttpServletResponse.SC_OK);
+		response.setStatus(HttpServletResponse.SC_ACCEPTED);
 	}
 	
 	@RequestMapping(value="/addmore")
@@ -108,7 +108,7 @@ public class ConferenceController {
 			@RequestParam(value=Param_SipUriList) String sipUriList,
 			@RequestParam(value=Param_AppId) String appId) throws JSONException{
 		addAttenddeeFromJSON(confId, sipUriList);
-		response.setStatus(HttpServletResponse.SC_OK);
+		response.setStatus(HttpServletResponse.SC_ACCEPTED);
 	}
 	
 	private void addAttenddeeFromJSON(String confId, String sipUriList) {
