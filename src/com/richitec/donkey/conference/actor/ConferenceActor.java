@@ -246,6 +246,8 @@ public class ConferenceActor extends UntypedActor {
 			}), sipUri);
 			
 			attendeeActorMap.put(sipUri, actor);
+		} else {
+			log.info("actor is not null");
 		}
 		
 		mediaServerSession.setAttribute(AttendeeActor.Actor, actor);

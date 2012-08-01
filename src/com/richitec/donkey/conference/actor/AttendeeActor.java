@@ -81,6 +81,13 @@ public class AttendeeActor extends BaseActor {
 	public AttendeeActor(SipApplicationSession sipAppSession, SipSession userSession,
 			SipSession mediaServerSession, String sipUri, String conn){
 		super();
+		this.sipFactory = ContextLoader.getSipFactory();
+		this.config = ContextLoader.getGlobalConfig();
+		this.init(sipAppSession, userSession, mediaServerSession, sipUri, conn);
+	}
+	
+	public void init(SipApplicationSession sipAppSession, SipSession userSession,
+			SipSession mediaServerSession, String sipUri, String conn){
 		this.sipAppSession = sipAppSession;
 		this.isUserSessionValid = true;
 		this.userSession = userSession;
@@ -88,8 +95,6 @@ public class AttendeeActor extends BaseActor {
 		this.mediaServerSession = mediaServerSession;
 		this.sipUri = sipUri;
 		this.conn = conn;
-		this.sipFactory = ContextLoader.getSipFactory();
-		this.config = ContextLoader.getGlobalConfig();
 		this.state = AttendeeState.CONFIRMED;
 	}
 
@@ -307,6 +312,7 @@ public class AttendeeActor extends BaseActor {
 	}
 	
 	private void bye(SipSession session){
+		log.info("BYE SipSession State : " + session.getState().name());
 		SipServletRequest bye = session.createRequest(BYE);
 		send(bye);
 	}

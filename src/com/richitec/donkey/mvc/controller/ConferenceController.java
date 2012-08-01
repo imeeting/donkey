@@ -55,7 +55,7 @@ public class ConferenceController {
 		@RequestParam(value=Param_RequestId) String reqId) throws IOException, JSONException{
 		log.info("confId : " + confId);
 		if (null == confId || confId.length()==0) {
-			confId = RandomString.genRandomNum(8);
+			confId = RandomString.genRandomNum(6);
 		}
 		
 		ActorRef actor = conferenceManager.getConferenceActor(confId);

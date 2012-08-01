@@ -133,6 +133,11 @@ public class CallInSipServlet extends SipServlet {
 		invite.send();
 	}
     
+    private boolean hasConference(String confId){
+    	ActorRef actor = conferenceManager.getConferenceActor(confId);
+    	return null != actor;
+    }
+    
     private boolean joinConference(SipApplicationSession sipAppSession, SipSession userSession,
     		SipSession mediaServerSession, String sipUri, String conn, String confId){
     	ActorRef actor = conferenceManager.getConferenceActor(confId);
@@ -253,8 +258,8 @@ public class CallInSipServlet extends SipServlet {
     	sendInfo(mediaServerSession, msmlContent);
     }
     
-    private void collectDtmf(SipSession mediaServerSession) throws IOException{
-    	Play play = createPlay(config.getInputConferenceVoice(), null);
+    private void collectDtmf(SipSession mediaServerSession, String audio) throws IOException{
+       	Play play = createPlay(audio, null);
     	Dtmf dtmf = createDtmf();
     	
     	Msml.Dialogstart.Group group = new Msml.Dialogstart.Group ();
@@ -271,6 +276,10 @@ public class CallInSipServlet extends SipServlet {
     	
     	String msmlContent = createMsml(dialogstart);
     	sendInfo(mediaServerSession, msmlContent);
+    }
+    
+    private void collectDtmf(SipSession mediaServerSession) throws IOException{
+    	collectDtmf(mediaServerSession, config.getInputConferenceVoice());
     }
     
     private String getSipUri(URI uri){
@@ -295,8 +304,8 @@ public class CallInSipServlet extends SipServlet {
     	if (null == confSet || confSet.size() < 1){
     		log.warn("Find no conference for " + uri);
     		mediaServerSession.setAttribute(SESSION_STATE, State.NoConference);
-//    		collectDtmf(mediaServerSession);
-    		playAudio(mediaServerSession, config.getNoConferenceVoice(), No_Conference_Voice_Play_Done);
+    		collectDtmf(mediaServerSession);
+//    		playAudio(mediaServerSession, config.getNoConferenceVoice(), No_Conference_Voice_Play_Done);
     	} else if (confSet.size() == 1) {
     		// Join to conference
     		String confId = confSet.iterator().next();
@@ -361,26 +370,21 @@ public class CallInSipServlet extends SipServlet {
     				collectDtmf(mediaServerSession);
     			} else {
     				String confId = userInputConfId.substring(0, userInputConfId.length()-1);
-    				String sipUri = (String) mediaServerSession.getAttribute(USER_SIPURI);
-    				String conn = (String) mediaServerSession.getAttribute(MEDIA_SERVER_CONN);
-    				boolean result = joinConference(userSession.getApplicationSession(), userSession,
-    						mediaServerSession, sipUri, conn, confId);
-    				if (!result){
-    					collectDtmf(mediaServerSession);
+    				boolean result = hasConference(confId);
+    				if (result){
+    					mediaServerSession.setAttribute(CONFERENCE_ID, confId);
+    					playAudio(mediaServerSession, config.getJoinConferenceVoice(), 
+    							Join_Conference_Voice_Play_Done);
+    				} else {
+    					collectDtmf(mediaServerSession, config.getNoConferenceVoice());
     				}
     			}
     		} else if (kv.containsKey("play.end")){
-       			State s = (State) mediaServerSession.getAttribute(SESSION_STATE);
-    			if (s.equals(State.NoConference)){
-    	    		bye(userSession);
-    	    		bye(mediaServerSession);
-    			} else if (s.equals(State.HasOneConference)){
-    	    		String sipUri = (String) mediaServerSession.getAttribute(USER_SIPURI);
-    	    		String conn = (String) mediaServerSession.getAttribute(MEDIA_SERVER_CONN);
-    	    		String confId = (String) mediaServerSession.getAttribute(CONFERENCE_ID);
-    	    		joinConference(userSession.getApplicationSession(), userSession,
-    	    				mediaServerSession, sipUri, conn, confId);
-    			} 
+	    		String sipUri = (String) mediaServerSession.getAttribute(USER_SIPURI);
+	    		String conn = (String) mediaServerSession.getAttribute(MEDIA_SERVER_CONN);
+	    		String confId = (String) mediaServerSession.getAttribute(CONFERENCE_ID);
+	    		joinConference(userSession.getApplicationSession(), userSession,
+	    				mediaServerSession, sipUri, conn, confId);
     		}
     	} else
     	if (No_Conference_Voice_Play_Done.equals(name)){
