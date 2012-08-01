@@ -5,6 +5,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import akka.actor.ActorRef;
 
 /**
@@ -14,6 +17,8 @@ import akka.actor.ActorRef;
  *
  */
 public class ConferenceManager {
+	
+	private static Log log = LogFactory.getLog(ConferenceManager.class);
 	
 	private Map<String, Set<String>> sipUriToConferenceMap;
 	private Map<String, ActorRef> confIdToActorMap;
@@ -47,6 +52,10 @@ public class ConferenceManager {
 	
 	public boolean isAttendeeInConference(String sipUri, String confId){
 		Set<String> confSet = sipUriToConferenceMap.get(sipUri);
+		log.debug(confId + "<null == confSet : " + (null == confSet) + ">");
+		for (String s : confSet){
+			log.debug("Find " + s + " in " + confId);
+		}
 		return (null != confSet && confSet.contains(confId));
 	}
 	

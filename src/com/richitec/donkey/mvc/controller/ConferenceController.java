@@ -64,6 +64,7 @@ public class ConferenceController {
 			conferenceManager.addConferenceActor(confId, actor);
 			actor.tell(new ActorMessage.CmdCreateConference(deleteWhen));
 			if (null != sipUriList && sipUriList.length()>0){
+				log.debug("sipUriList : " + sipUriList);
 				addAttenddeeFromJSON(confId, sipUriList);
 			}
 			DonkeyResponse.Accepted(response, DonkeyResponseMessage.ConferenceSession(confId));
@@ -119,6 +120,8 @@ public class ConferenceController {
 				boolean result = conferenceManager.addAttendeeToConference(sipUri, confId);
 				if (!result){
 					log.warn("Cannot add SIP URI <" + sipUri + "> to conference <" + confId+ ">");
+				} else {
+					log.debug("Add <" + sipUri + "> to conference <" + confId + ">");
 				}
 			}
 		} catch (JSONException e) {
@@ -142,6 +145,7 @@ public class ConferenceController {
 			actor.tell(new ActorMessage.CmdJoinConference("call", sipUri));
 			response.setStatus(HttpServletResponse.SC_ACCEPTED);
 		} else {
+			log.debug("call sipuri: " + sipUri);
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 		}
 	}
