@@ -143,9 +143,22 @@ public class AttendeeActor extends BaseActor {
 		} else
 		if (msg instanceof ActorMessage.SipSessionReadyToInvalidate) {
 			onSipSessionReadyToInvalidate((ActorMessage.SipSessionReadyToInvalidate) msg);
+		} else 
+		if (msg instanceof ActorMessage.EvtAttendeeCallInConference) {
+			onEvtAttendeeCallInConference((ActorMessage.EvtAttendeeCallInConference) msg);
 		} else {
 			unhandled(msg);
 		}
+	}
+	
+	private void onEvtAttendeeCallInConference(ActorMessage.EvtAttendeeCallInConference msg){
+		SipApplicationSession sipAppSession = msg.getSipAppSession();
+		SipSession userSession = msg.getUserSession();
+		SipSession mediaServerSession = msg.getMediaServerSession();
+		String sipUri = msg.getSipUri();
+		String conn = msg.getConn();
+		
+		this.init(sipAppSession, userSession, mediaServerSession, sipUri, conn);
 	}
 	
 	private void onCmdJoinConference(ActorMessage.CmdJoinConference msg) throws UnsupportedEncodingException, ServletException{
