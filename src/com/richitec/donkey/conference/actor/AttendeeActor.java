@@ -97,6 +97,17 @@ public class AttendeeActor extends BaseActor {
 		this.conn = conn;
 		this.state = AttendeeState.CONFIRMED;
 	}
+	
+	private String getMySipUri(){
+		String result = this.sipUri;
+		if (!this.sipUri.startsWith("sip:")){
+			result = "sip:" + this.sipUri;
+		} 
+		if (!this.sipUri.contains("@")) {
+			result = result + "@" + config.getSoftSwitchIP();
+		}
+		return result;
+	}
 
 	@Override
 	public void onReceive(Object msg) throws Exception {
@@ -172,7 +183,7 @@ public class AttendeeActor extends BaseActor {
 			mediaServerResponse = response;
 			SipApplicationSession sipAppSession = sipSession.getApplicationSession();
 			inviteUser = sipFactory.createRequest(sipAppSession, 
-					INVITE, config.getSipUri(), this.sipUri);
+					INVITE, config.getSipUri(), getMySipUri());
 			
 			inviteUser.setContent(response.getContent(), response.getContentType());
 			

@@ -7,6 +7,7 @@ public class GlobalConfig {
 	private Integer outboundPort;
 	private String mediaServerSipUri;
 	private String softSwitchSipUri;
+	private String softSwitchIP;
 	private Integer expire;
 	
 	private String noConferenceVoice;
@@ -50,8 +51,16 @@ public class GlobalConfig {
 		this.softSwitchSipUri = sipUri;
 	}
 	
+	public void setSoftSwitchIP(String ipAddr){
+		this.softSwitchIP = ipAddr;
+	}
+	
 	public String getSoftSwitchSipUri(){
 		return this.softSwitchSipUri;
+	}
+	
+	public String getSoftSwitchIP(){
+		return this.softSwitchIP;
 	}
 	
 	public void setExpire(Integer expire){

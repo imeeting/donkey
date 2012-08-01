@@ -282,10 +282,12 @@ public class CallInSipServlet extends SipServlet {
     	collectDtmf(mediaServerSession, config.getInputConferenceVoice());
     }
     
-    private String getSipUri(URI uri){
+    private String getPhoneNumber(URI uri){
     	String strURI = uri.toString();
     	String [] list = strURI.split(":");
-    	return list[0] + ":" + list[1];
+    	String str = list[1];
+    	list = str.split("@");
+    	return list[0];
     }
     
     /**
@@ -297,7 +299,7 @@ public class CallInSipServlet extends SipServlet {
     	SipSession mediaServerSession = (SipSession) userSession.getAttribute(LINKED_SESSION);
     	
     	//Get conference ID of this user.
-    	String uri = getSipUri(req.getFrom().getURI());
+    	String uri = getPhoneNumber(req.getFrom().getURI());
     	mediaServerSession.setAttribute(USER_SIPURI, uri);
     	log.info("From URI: " + uri);
     	Set<String> confSet = conferenceManager.getConferenceByAttendee(uri);

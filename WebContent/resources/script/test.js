@@ -98,7 +98,7 @@ $(function() {
 	$(".btn-add").click(function() {
 		var attendeeInput = $(this).parent().find(".ipt-attendee");
 		var sipInput = $(this).parent().find(".ipt-sipuri");
-		var sipUri = "sip:" + $(sipInput).val();
+		var sipUri = $(sipInput).val();
 		fclick({
 			m : "add",
 			appid : "100",
@@ -115,7 +115,7 @@ $(function() {
 	$(".btn-join").click(function() {
 		var attendeeInput = $(this).parent().find(".ipt-attendee");
 		var sipInput = $(this).parent().find(".ipt-sipuri");
-		var sipUri = "sip:" + $(sipInput).val();
+		var sipUri = $(sipInput).val();
 		fclick({
 			m : "join",
 			appid : "100",

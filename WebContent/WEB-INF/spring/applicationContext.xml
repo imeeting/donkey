@@ -51,7 +51,10 @@
 		</property>	
 		<property name="softSwitchSipUri">
 			<value>${donkey.softSwitch.sipUri}</value>
-		</property>	
+		</property>
+		<property name="softSwitchIP">
+			<value>${donkey.softSwitch.ip}</value>
+		</property>		
 		<property name="expire">
 			<value>${donkey.conference.expire}</value>
 		</property>	

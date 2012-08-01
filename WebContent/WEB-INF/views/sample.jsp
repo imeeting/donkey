@@ -24,7 +24,7 @@
 
 		<div>
 			<input class="ipt-attendee" type="hidden" /> <input
-				class="ipt-sipuri" type="text" value="018652970325@donkey.com" />
+				class="ipt-sipuri" type="text" value="18652970325" />
 			<button class="btn-add">Add</button>
 			<button class="btn-call">Call</button>
 			<button class="btn-hangup">Hang up</button>
@@ -35,7 +35,7 @@
 		</div>
 		<div>
 			<input class="ipt-attendee" type="hidden" /> <input
-				class="ipt-sipuri" type="text" value="013382794516@donkey.com" />
+				class="ipt-sipuri" type="text" value="13382794516" />
 			<button class="btn-add">Add</button>
 			<button class="btn-call">Call</button>
 			<button class="btn-hangup">Hang up</button>				
