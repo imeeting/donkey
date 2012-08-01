@@ -378,7 +378,7 @@ public class AttendeeActor extends BaseActor {
 		}
 		
 		if (!isMediaServerSessionValid && !isUserSessionValid){
-			if (this.state == AttendeeState.TERM_WAIT) {
+			if (this.state == AttendeeState.TERM_WAIT || this.state == AttendeeState.CONFIRMED) {
 				this.state = AttendeeState.INITIAL;
 				getContext().parent().tell(new ActorMessage.EvtAttendeeCallTerminated(sipUri), getSelf());
 			} else if (this.state == AttendeeState.CALL_FAILED) {
