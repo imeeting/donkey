@@ -78,7 +78,7 @@ public class ConferenceController {
 			HttpServletResponse response,
 			@RequestParam(value=Param_Conference) String confId,
 			@RequestParam(value=Param_AppId) String appId) throws IOException{
-		ActorRef actor = conferenceManager.removeConferenceActor(confId);
+		ActorRef actor = conferenceManager.getConferenceActor(confId);
 		actor.tell(ActorMessage.destroyConference);
 		response.setStatus(HttpServletResponse.SC_ACCEPTED);
 	}
@@ -239,6 +239,11 @@ public class ConferenceController {
 		} else {
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 		}
+	}
+	
+	@RequestMapping(value="/list")
+	public void list(){
+		
 	}
 	
 }

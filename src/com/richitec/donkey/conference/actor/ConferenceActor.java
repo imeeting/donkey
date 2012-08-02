@@ -324,6 +324,7 @@ public class ConferenceActor extends UntypedActor {
 			log.info("\nConferenceActor of <"+confId+"> Stopped");
 			attendeeActorMap = null;
 			getContext().stop(getSelf());
+			ContextLoader.getConfereneManager().removeConferenceActor(confId);
 		}
 	}
 	
