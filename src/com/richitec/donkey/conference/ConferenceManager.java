@@ -75,5 +75,9 @@ public class ConferenceManager {
 	public ActorRef removeConferenceActor(String confId){
 		return confIdToActorMap.remove(confId);
 	}
+	
+	public Set<String> getAllConferenceID(){
+		return confIdToActorMap.keySet();
+	}
 
 }

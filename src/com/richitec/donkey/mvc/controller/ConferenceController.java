@@ -1,6 +1,7 @@
 package com.richitec.donkey.mvc.controller;
 
 import java.io.IOException;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletResponse;
@@ -239,11 +240,6 @@ public class ConferenceController {
 		} else {
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 		}
-	}
-	
-	@RequestMapping(value="/list")
-	public void list(){
-		
 	}
 	
 }
