@@ -44,14 +44,15 @@ public class SipApplicationSessionListener
 		} else {
 			//control channel SipApplicationSession
 			if (expireMinutes > 0){
-				expireMinutes -= 10;
+				expireMinutes -= 1;
 				sipAppSession.setAttribute(ControlChannelActor.ExpireMinutes, expireMinutes);
-				sipAppSession.setExpires(10);
+				sipAppSession.setExpires(1);
 				if (expireMinutes <= 0){
+					log.warn("\nAPP SESSION <" + sipAppSession.getId() + "> Expired");
 					ActorRef actor = 
-						(ActorRef) sipAppSession.getAttribute(ControlChannelActor.Actor);
+						(ActorRef) sipAppSession.getAttribute(ControlChannelActor.ConferenceActor);
 					if (null != actor){
-						actor.tell(new ActorMessage.SipAppSessionExpired(sipAppSession));
+						actor.tell(ActorMessage.controlChannelExpired);
 					}
 				}
 			}

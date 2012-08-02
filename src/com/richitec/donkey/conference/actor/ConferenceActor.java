@@ -105,6 +105,9 @@ public class ConferenceActor extends UntypedActor {
 		if (msg instanceof ActorMessage.ErrAttendeeStatusConflict) {
 			onErrAttendeeStatusConflict((ActorMessage.ErrAttendeeStatusConflict) msg);
 		} else
+		if (msg instanceof ActorMessage.EvtControlChannelExpired) {
+			onEvtControlChannelExpired((ActorMessage.EvtControlChannelExpired) msg);
+		} else
 		if (msg instanceof Terminated) {
 			onTermianted((Terminated) msg);
 		} else {
@@ -118,7 +121,7 @@ public class ConferenceActor extends UntypedActor {
 					@Override
 					public Actor create() {
 						try {
-							return new ControlChannelActor();
+							return new ControlChannelActor(confId);
 						} catch (JAXBException e) {
 							e.printStackTrace();
 						}
@@ -131,21 +134,28 @@ public class ConferenceActor extends UntypedActor {
 	}
 	
 	private void onCmdDestroyConference(ActorMessage.CmdDestroyConference msg){
+		if (! destroyConference()) {
+			notify(new NotifyMessage.ConferenceStatusConflict(msg.getMethod(), null, state.name()));
+		}
+	}
+	
+	private boolean destroyConference(){
 		if (this.state == State.Created){
 			this.state = State.Destroy_Wait;
-			controlChannelActor.tell(msg, getSelf());
-			
+			controlChannelActor.tell(ActorMessage.destroyConference, getSelf());
 			ConferenceManager confManager = ContextLoader.getConfereneManager();
 			for (Entry<String, ActorRef> e : attendeeActorMap.entrySet()){
 				String sipUri = e.getKey();
+				log.debug("destroy " + sipUri + " in conference <" + confId + ">");
 				confManager.removeAttendeeFromConference(sipUri, confId);
 				ActorRef actor = e.getValue();
-				actor.tell(msg, getSelf());
+				actor.tell(ActorMessage.destroyConference, getSelf());
 			}
+			return true;
 		} else {
-			log.error("Cannot <" + msg.getMethod()+"> conference <" + 
+			log.error("Cannot <destroy> conference <" + 
 					confId + "> when ConferenceActor state is " + state.name());
-			notify(new NotifyMessage.ConferenceStatusConflict(msg.getMethod(), null, state.name()));
+			return false;
 		}
 	}
 	
@@ -244,7 +254,7 @@ public class ConferenceActor extends UntypedActor {
 							userSession, mediaServerSession, sipUri, conn);
 				}
 			}), sipUri);
-			
+			getContext().watch(actor);
 			attendeeActorMap.put(sipUri, actor);
 		} else {
 			actor.tell(msg, getSelf());
@@ -284,6 +294,11 @@ public class ConferenceActor extends UntypedActor {
 		notify(new NotifyMessage.ConferenceDestroySuccess());
 	}
 	
+	private void onEvtControlChannelExpired(ActorMessage.EvtControlChannelExpired msg){
+		log.warn("\nConference <" + confId + "> is expired.");
+		destroyConference();
+	}
+	
 	private void onErrAttendeeStatusConflict(ActorMessage.ErrAttendeeStatusConflict msg){
 		log.error("Cannot <" + msg.getMethod()+"> <"+msg.getSipUri()+"> in conference <" + 
 				confId + "> when AttendeeActor state is " + msg.getState());
@@ -293,12 +308,12 @@ public class ConferenceActor extends UntypedActor {
 	private void onTermianted(Terminated msg){
 		ActorRef actor = msg.getActor();
 		if (actor == controlChannelActor) {
-			log.info("ControlChannelActor Stopped");
+			log.info("\nControlChannelActor of <" + confId + "> Stopped");
 			controlChannelActor = null;
 		} else {
-			log.info("AttendeeActor Stopped");
 			for (Entry<String, ActorRef> e : attendeeActorMap.entrySet()){
 				if (actor == e.getValue()){
+					log.info("\nAttendeeActor of <"+e.getKey()+"> in <"+confId+"> Stopped");
 					attendeeActorMap.remove(e.getKey());
 					break;
 				}
@@ -306,7 +321,8 @@ public class ConferenceActor extends UntypedActor {
 		}
 		
 		if (null == controlChannelActor && attendeeActorMap.isEmpty()){
-			log.info("Stop ConferenceActor");
+			log.info("\nConferenceActor of <"+confId+"> Stopped");
+			attendeeActorMap = null;
 			getContext().stop(getSelf());
 		}
 	}
@@ -317,7 +333,7 @@ public class ConferenceActor extends UntypedActor {
 		msg.put(NotifyMessage.conference, this.confId);
 		NotifyMessageSender sender = new NotifyMessageSender(msg, notifyUrl);
 		log.info("\nNotify : " + msg);
-		threadPool.submit(sender);
+//		threadPool.submit(sender);
 	}
 	
 }

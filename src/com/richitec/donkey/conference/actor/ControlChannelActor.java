@@ -55,6 +55,7 @@ public class ControlChannelActor extends BaseActor {
 	
 	public static final String Name = "controlChannel";
 	public static final String Actor = "actor";
+	public static final String ConferenceActor = "conferenceActor";
 	public static final String NoMedia = "nomedia";
 	public static final String NoControl = "nocontrol";
 	public static final String INVITE = "INVITE";
@@ -89,6 +90,7 @@ public class ControlChannelActor extends BaseActor {
 	private String mediaServerConfId;
 	private String deleteWhen = NoMedia;
 	private String destroyInfoCSeq;
+	private String confId;
 	
 	private GlobalConfig config;
 	
@@ -97,12 +99,13 @@ public class ControlChannelActor extends BaseActor {
 	
 	public static final String ExpireMinutes = "expire_minutes";
 	
-	public ControlChannelActor() throws JAXBException{
+	public ControlChannelActor(String confId) throws JAXBException{
 		super();
+		this.confId = confId;
 		this.config = ContextLoader.getGlobalConfig();
 		this.sipFactory = ContextLoader.getSipFactory();
 		this.sipAppSession = sipFactory.createApplicationSession();
-		this.sipAppSession.setAttribute(Actor, getSelf());
+		this.sipAppSession.setAttribute(ConferenceActor, getContext().parent());
 		this.sipAppSession.setAttribute(ExpireMinutes, config.getExpire());
 		this.jc = JAXBContext.newInstance(Msml.class);
 		this.ju = jc.createUnmarshaller();
@@ -147,9 +150,6 @@ public class ControlChannelActor extends BaseActor {
 		if (msg instanceof ActorMessage.SipSessionReadyToInvalidate) {
 			onSipSessionReadyToInvalidate((ActorMessage.SipSessionReadyToInvalidate) msg);
 		} else 
-		if (msg instanceof ActorMessage.SipAppSessionExpired) {
-			onSipAppSessionExpired((ActorMessage.SipAppSessionExpired) msg);
-		} else
 		if (msg instanceof SendSipRequestCompleteMsg){
 			onSendSipRequestCompleteMsg((SendSipRequestCompleteMsg) msg);
 		} else if (msg instanceof SendSipRequestErrorMsg) {
@@ -169,7 +169,7 @@ public class ControlChannelActor extends BaseActor {
 		info.setContent(os.toString(), MSML_CONTENT_TYPE);
 		if (msmlRequest instanceof Msml.Destroyconference){
 			destroyInfoCSeq = info.getHeader(Cseq);
-			log.debug("CSeq of INFO <destroyconference> : " + destroyInfoCSeq);
+			log.debug("\nCSeq of INFO <destroyconference> : " + destroyInfoCSeq);
 		}
 		send(info);	
 	}
@@ -227,7 +227,8 @@ public class ControlChannelActor extends BaseActor {
 			
 			sendInfo(createConference);			
 		} else {
-			log.error("Cannot establish control channel with Media Server, SIP Status : " + status);
+			log.error("\nCannot establish control channel for conference <" + 
+					confId + ">, the SIP status from Media Server is : " + status);
 			getContext().parent().tell(
 					ActorMessage.createConferenceError, getSelf());
 		}
@@ -243,7 +244,7 @@ public class ControlChannelActor extends BaseActor {
 		SipServletResponse sipResp = msg.getResponse();
 		String contentType = sipResp.getContentType();
 		if (!MSML_CONTENT_TYPE.equals(contentType)){
-			log.error("Error content type from Media Server : " + contentType);
+			log.error("\nConference <" + confId + "> Error content type from Media Server : " + contentType);
 			return;
 		}
 		
@@ -261,7 +262,7 @@ public class ControlChannelActor extends BaseActor {
 							ActorMessage.createConferenceSuccess, getSelf());
 				}
 			} else {
-				log.error("Cannot create conference in Media Server.");
+				log.error("\nCannot create conference in Media Server for conference <" + confId + ">");
 				String content = new String(sipResp.getRawContent());
 				log.error("\nRespone from Media Server :\n" + content + "\n");
 				getContext().parent().tell(
@@ -281,14 +282,14 @@ public class ControlChannelActor extends BaseActor {
 		SipServletRequest request = msg.getRequest();
 		String contentType = request.getContentType();
 		if (!MSML_CONTENT_TYPE.equals(contentType)){
-			log.error("Error content type from Media Server : " + contentType);
+			log.error("\nConference <" + confId + "> Error content type from Media Server : " + contentType);
 			return;
 		}
 		Msml msml = getMsmlFromContent(request.getRawContent());
 		Msml.Event event = msml.getEvent();
 		String name = event.getName();
 		if ("msml.conf.nomedia".equals(name)){
-			log.debug("nomedia in conf: " + mediaServerConfId);
+			log.debug("\n Conference <" + confId +"> nomedia in conf: " + mediaServerConfId);
 			byeControlChannel();
 		}
 	}
@@ -301,7 +302,7 @@ public class ControlChannelActor extends BaseActor {
 			destroyConference.setId(mediaServerConfId);
 			sendInfo(destroyConference);
 		} else {
-			log.error("Invalid deleteWhen value : " + deleteWhen);
+			log.error("\n Conference <"+confId+"> Invalid deleteWhen value : " + deleteWhen);
 		}
 	}
 	
@@ -310,7 +311,6 @@ public class ControlChannelActor extends BaseActor {
 	}
 	
 	private void byeControlChannel(){
-		//TODO: notify ConferenceActor that the conference is terminated.
 		SipServletRequest bye = controlSession.createRequest(BYE);
 		send(bye);
 	}
@@ -355,14 +355,9 @@ public class ControlChannelActor extends BaseActor {
 	}
 	
 	private void onSipSessionReadyToInvalidate(ActorMessage.SipSessionReadyToInvalidate msg){
-		log.info("\nControlChannelActor <" + mediaServerConfId + "> SIP Session ReadyToInvalidate.");
+		log.debug("\nControl channel SIP session of conference <" + confId + "> is ReadyToInvalidate.");
 		getContext().parent().tell(ActorMessage.controlChannelTerminated, getSelf());
 		getContext().stop(getSelf());
-	}
-	
-	private void onSipAppSessionExpired(ActorMessage.SipAppSessionExpired msg) throws UnsupportedEncodingException, JAXBException{
-		log.info("\n");
-		destroyConference();
 	}
 	
 	private void onSendSipRequestCompleteMsg(SendSipRequestCompleteMsg msg) {

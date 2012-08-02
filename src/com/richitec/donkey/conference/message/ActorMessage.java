@@ -17,6 +17,7 @@ public class ActorMessage {
 	public static EvtConferenceCreateSuccess createConferenceSuccess = new EvtConferenceCreateSuccess();
 	public static EvtConferenceCreateError createConferenceError = new EvtConferenceCreateError();
 	public static EvtControlChannelTerminated controlChannelTerminated = new EvtControlChannelTerminated();
+	public static EvtControlChannelExpired controlChannelExpired = new EvtControlChannelExpired();
 	
 	public static class CmdCreateConference {
 		private String deleteWhen;
@@ -221,6 +222,10 @@ public class ActorMessage {
 		
 	}
 	
+	public static class EvtControlChannelExpired {
+		
+	}
+	
 	/**
 	 * B2BUASipServlet related 
 	 * 
@@ -318,16 +323,6 @@ public class ActorMessage {
 		}
 		public SipSession getSipSession(){
 			return this.session;
-		}
-	}
-	
-	public static class SipAppSessionExpired {
-		private SipApplicationSession sipAppSession;
-		public SipAppSessionExpired(SipApplicationSession session){
-			this.sipAppSession = session;
-		}
-		public SipApplicationSession getSipAppSession() {
-			return this.sipAppSession;
 		}
 	}
 
