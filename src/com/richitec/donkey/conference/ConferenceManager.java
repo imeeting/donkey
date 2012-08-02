@@ -53,9 +53,6 @@ public class ConferenceManager {
 	public boolean isAttendeeInConference(String sipUri, String confId){
 		Set<String> confSet = sipUriToConferenceMap.get(sipUri);
 		log.debug(confId + "<null == confSet : " + (null == confSet) + ">");
-		for (String s : confSet){
-			log.debug("Find " + s + " in " + confId);
-		}
 		return (null != confSet && confSet.contains(confId));
 	}
 	
