@@ -113,7 +113,7 @@ $(function() {
 	});	
 
 	$(".btn-join").click(function() {
-		var attendeeInput = $(this).parent().find(".ipt-attendee");
+		var attendeeInput = $(this).parent().find(".ipt-sipuri");
 		var sipInput = $(this).parent().find(".ipt-sipuri");
 		var sipUri = $(sipInput).val();
 		fclick({
@@ -130,7 +130,7 @@ $(function() {
 	});
 
 	$(".btn-unjoin").click(function() {
-		var attendeeVal = $(this).parent().find(".ipt-attendee").val();
+		var attendeeVal = $(this).parent().find(".ipt-sipuri").val();
 		fclick({
 			m : "unjoin",
 			appid : "100",
@@ -142,7 +142,7 @@ $(function() {
 	});
 
 	$(".btn-call").click(function() {
-		var attendeeVal = $(this).parent().find(".ipt-attendee").val();
+		var attendeeVal = $(this).parent().find(".ipt-sipuri").val();
 		fclick({
 			m : "call",
 			appid : "100",
@@ -154,7 +154,7 @@ $(function() {
 	});	
 	
 	$(".btn-hangup").click(function() {
-		var attendeeVal = $(this).parent().find(".ipt-attendee").val();
+		var attendeeVal = $(this).parent().find(".ipt-sipuri").val();
 		fclick({
 			m : "hangup",
 			appid : "100",
@@ -166,7 +166,7 @@ $(function() {
 	});		
 	
 	$(".btn-mute").click(function() {
-		var attendeeVal = $(this).parent().find(".ipt-attendee").val();
+		var attendeeVal = $(this).parent().find(".ipt-sipuri").val();
 		fclick({
 			m : "mute",
 			appid : "100",
@@ -178,7 +178,7 @@ $(function() {
 	});
 
 	$(".btn-unmute").click(function() {
-		var attendeeVal = $(this).parent().find(".ipt-attendee").val();
+		var attendeeVal = $(this).parent().find(".ipt-sipuri").val();
 		fclick({
 			m : "unmute",
 			appid : "100",
