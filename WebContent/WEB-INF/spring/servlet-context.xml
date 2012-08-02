@@ -23,8 +23,8 @@
 		<mvc:interceptor>
 			<mvc:mapping path="/app"/>
 			<mvc:mapping path="/app/**"/>
-			<mvc:mapping path="/cdr"/>
-			<mvc:mapping path="/cdr/**"/>
+			<mvc:mapping path="/sys"/>
+			<mvc:mapping path="/sys/**"/>
 			<mvc:mapping path="/sample"/>
 			<mvc:mapping path="/sample/**"/>
 			<bean class="com.richitec.donkey.mvc.SessionInterceptor" />

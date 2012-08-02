@@ -1,5 +1,6 @@
 package com.richitec.donkey.mvc.controller;
 
+import java.util.Map;
 import java.util.Set;
 
 
@@ -16,9 +17,17 @@ public class SystemStatusController {
 	@RequestMapping
 	public ModelAndView index(){
 		Set<String> allConfIdSet = ContextLoader.getConfereneManager().getAllConferenceID();
+		Map<String, Set<String>> map = ContextLoader.getConfereneManager().getSipUriToConferenceMap();
 		ModelAndView mv = new ModelAndView();
 		mv.addObject("confIdSet", allConfIdSet);
+		mv.addObject("sipUriConfMap", map);
 		mv.setViewName("system");
+		return mv;
+	}
+	
+	@RequestMapping("value=/conf/{confId}")
+	public ModelAndView conf(){
+		ModelAndView mv = new ModelAndView();
 		return mv;
 	}
 }

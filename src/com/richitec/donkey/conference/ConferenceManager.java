@@ -60,6 +60,10 @@ public class ConferenceManager {
 		return sipUriToConferenceMap.get(sipUri);
 	}
 	
+	public Map<String, Set<String>> getSipUriToConferenceMap(){
+		return sipUriToConferenceMap;
+	}
+	
 	public void addConferenceActor(String confId, ActorRef actor){
 		confIdToActorMap.put(confId, actor);
 	}
