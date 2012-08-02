@@ -336,7 +336,6 @@ public class AttendeeActor extends BaseActor {
 	}
 	
 	private void bye(SipSession session){
-		log.info("BYE SipSession State : " + session.getState().name());
 		SipServletRequest bye = session.createRequest(BYE);
 		send(bye);
 	}
