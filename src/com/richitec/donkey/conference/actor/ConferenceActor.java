@@ -333,7 +333,7 @@ public class ConferenceActor extends UntypedActor {
 		msg.put(NotifyMessage.conference, this.confId);
 		NotifyMessageSender sender = new NotifyMessageSender(msg, notifyUrl);
 		log.info("\nNotify : " + msg);
-//		threadPool.submit(sender);
+		threadPool.submit(sender);
 	}
 	
 }
