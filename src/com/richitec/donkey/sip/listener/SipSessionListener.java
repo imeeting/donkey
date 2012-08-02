@@ -6,7 +6,6 @@ import javax.servlet.sip.SipSessionEvent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.richitec.donkey.conference.actor.AttendeeActor;
 import com.richitec.donkey.conference.message.ActorMessage;
 
 import akka.actor.ActorRef;
