@@ -27,10 +27,14 @@ public class SipApplicationSessionListener
 		log.debug("\nAPP SESSION <" + ev.getApplicationSession().getId() + "> Destroyed");
 	}
 
+	/**
+	 * SipApplicationSession Expired 以后，不会触发sessionReadyToInvalidate，
+	 * 而是直接进入 sessionDestroyed。该SipApplicationSession的所有SipSession
+	 * 也是直接进入 sessionDestroyed。
+	 */
 	@Override
 	public void sessionExpired(SipApplicationSessionEvent ev) {
 		SipApplicationSession sipAppSession = ev.getApplicationSession();
-		log.debug("\nAPP SESSION <" + sipAppSession.getId() + "> Expired");
 		
 		Integer expireMinutes =
 			(Integer) sipAppSession.getAttribute(ControlChannelActor.ExpireMinutes);
@@ -56,8 +60,7 @@ public class SipApplicationSessionListener
 
 	@Override
 	public void sessionReadyToInvalidate(SipApplicationSessionEvent ev) {
-		SipApplicationSession sipAppSession = ev.getApplicationSession();
-		log.debug("\nAPP SESSION <" + sipAppSession.getId() + "> ReadyToInvalidate");	
+		log.debug("\nAPP SESSION <" + ev.getApplicationSession().getId() + "> ReadyToInvalidate");	
 	}
 
 }
