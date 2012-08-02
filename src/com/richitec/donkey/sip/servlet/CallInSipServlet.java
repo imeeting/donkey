@@ -140,6 +140,7 @@ public class CallInSipServlet extends SipServlet {
     
     private boolean joinConference(SipApplicationSession sipAppSession, SipSession userSession,
     		SipSession mediaServerSession, String sipUri, String conn, String confId){
+    	conferenceManager.addAttendeeToConference(sipUri, confId);
     	ActorRef actor = conferenceManager.getConferenceActor(confId);
     	if (null == actor){
     		log.error("Cannot get actor for conference " + confId);
@@ -301,7 +302,7 @@ public class CallInSipServlet extends SipServlet {
     	//Get conference ID of this user.
     	String uri = getPhoneNumber(req.getFrom().getURI());
     	mediaServerSession.setAttribute(USER_SIPURI, uri);
-    	log.info("From URI: " + uri);
+    	log.debug("From URI: " + uri);
     	Set<String> confSet = conferenceManager.getConferenceByAttendee(uri);
     	if (null == confSet || confSet.size() < 1){
     		log.warn("Find no conference for " + uri);
@@ -326,7 +327,7 @@ public class CallInSipServlet extends SipServlet {
      */
     @Override
     protected void doInfo(SipServletRequest req) throws ServletException, IOException {
-    	log.info("CSeq : " + req.getHeader("cseq"));
+    	log.debug("CSeq : " + req.getHeader("cseq"));
     	SipServletResponse resp = req.createResponse(SipServletResponse.SC_OK);
     	resp.send();
     	
@@ -362,7 +363,7 @@ public class CallInSipServlet extends SipServlet {
     		SipSession userSession, SipSession mediaServerSession) throws IOException{
     	String name = event.getName();
     	String id = event.getId();
-    	log.info("media server event : name=" + name + ", id=" + id);
+    	log.debug("media server event : name=" + name + ", id=" + id);
     	if (Msml_Dialog_Exit.equals(name)){
     		Map<String, String> kv = getKeyValuePairs(event.getNameAndValue());
     		if (kv.containsKey("dtmf.end")){
@@ -460,7 +461,7 @@ public class CallInSipServlet extends SipServlet {
     protected void doSuccessResponse(SipServletResponse resp) throws ServletException, IOException {
     	String conn = resp.getTo().getParameter("tag");
     	
-    	log.info("conn : " + conn);
+    	log.debug("conn : " + conn);
     
     	SipServletRequest ack = resp.createAck();
     	ack.send();
