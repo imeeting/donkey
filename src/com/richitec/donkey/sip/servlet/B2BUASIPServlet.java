@@ -53,7 +53,7 @@ public class B2BUASIPServlet extends SipServlet {
     @Override
     protected void doInvite(SipServletRequest req) throws ServletException, IOException {
     	super.doInvite(req);
-    	log.info("INVITE from : " + req.getFrom().getValue());
+    	log.debug("INVITE from : " + req.getFrom().getValue());
     }
     
     /*

@@ -31,7 +31,7 @@ public class MainSipServlet extends SipServlet {
      */
     @Override
     protected void doRequest(SipServletRequest req) throws ServletException, IOException {
-    	log.info("\n REQUEST Method : " + req.getMethod() + 
+    	log.debug("\n REQUEST Method : " + req.getMethod() + 
     			"\n REQUEST From : " + req.getFrom().getValue() + 
     			"\n REQUEST To : " + req.getTo().getValue());
 //    	SipSession session = req.getSession(false);
