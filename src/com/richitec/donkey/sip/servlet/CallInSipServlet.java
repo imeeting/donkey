@@ -71,6 +71,7 @@ public class CallInSipServlet extends SipServlet {
     private static final String USER_SIPURI = "user_sip_uri";
     private static final String CONFERENCE_ID = "conference_id";
     private static final String SESSION_STATE = "session_state";
+    private static final String COLLECT_DTMF_TIMES = "collect_dtmf_times";
     
     private enum State {NoConference, HasOneConference, HasMultiConference};
     
@@ -260,6 +261,23 @@ public class CallInSipServlet extends SipServlet {
     }
     
     private void collectDtmf(SipSession mediaServerSession, String audio) throws IOException{
+    	
+    	Integer t = (Integer)mediaServerSession.getAttribute(COLLECT_DTMF_TIMES);
+    	if (null == t){
+    		mediaServerSession.setAttribute(COLLECT_DTMF_TIMES, 1);
+    	} else {
+    		if (t<3){
+    			mediaServerSession.setAttribute(COLLECT_DTMF_TIMES, t+1);
+    		} else {
+    			String phone = (String) mediaServerSession.getAttribute(USER_SIPURI);
+    			log.warn("<" + phone + "> tried 3 times to input conference ID.");
+    			SipSession userSession = (SipSession) mediaServerSession.getAttribute(LINKED_SESSION);
+    			bye(userSession);
+    			bye(mediaServerSession);
+    			return;
+    		}
+    	}
+    	
        	Play play = createPlay(audio, null);
     	Dtmf dtmf = createDtmf();
     	
@@ -363,13 +381,14 @@ public class CallInSipServlet extends SipServlet {
     		SipSession userSession, SipSession mediaServerSession) throws IOException{
     	String name = event.getName();
     	String id = event.getId();
+    	String phone = (String) mediaServerSession.getAttribute(USER_SIPURI);
     	log.debug("media server event : name=" + name + ", id=" + id);
     	if (Msml_Dialog_Exit.equals(name)){
     		Map<String, String> kv = getKeyValuePairs(event.getNameAndValue());
     		if (kv.containsKey("dtmf.end")){
     			String userInputConfId = kv.get("dtmf.digits"); 
     			if (!userInputConfId.endsWith("#")){
-    				log.warn("Invalid conference id : " + userInputConfId);
+    				log.warn("\nInvalid conference id <" + userInputConfId + "> from " + phone);
     				collectDtmf(mediaServerSession);
     			} else {
     				String confId = userInputConfId.substring(0, userInputConfId.length()-1);
