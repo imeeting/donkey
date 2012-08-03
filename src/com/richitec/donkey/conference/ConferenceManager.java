@@ -1,6 +1,7 @@
 package com.richitec.donkey.conference;
 
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -48,6 +49,20 @@ public class ConferenceManager {
 			sipUriToConferenceMap.remove(sipUri);
 		}
 		return result;
+	}
+	
+	public synchronized void removeAllAttendeesFromConference(String confId){
+		for (Entry<String, Set<String>> e : sipUriToConferenceMap.entrySet()){
+			Set<String> confSet = e.getValue();
+			if (null == confSet){
+				continue;
+			}
+			
+			confSet.remove(confId);
+			if (confSet.isEmpty()){
+				sipUriToConferenceMap.remove(e.getKey());
+			}
+		}
 	}
 	
 	public boolean isAttendeeInConference(String sipUri, String confId){

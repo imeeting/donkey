@@ -144,11 +144,8 @@ public class ConferenceActor extends UntypedActor {
 			this.state = State.Destroy_Wait;
 			controlChannelActor.tell(ActorMessage.destroyConference, getSelf());
 			ConferenceManager confManager = ContextLoader.getConfereneManager();
-			for (Entry<String, ActorRef> e : attendeeActorMap.entrySet()){
-				String sipUri = e.getKey();
-				log.debug("destroy " + sipUri + " in conference <" + confId + ">");
-				confManager.removeAttendeeFromConference(sipUri, confId);
-				ActorRef actor = e.getValue();
+			confManager.removeAllAttendeesFromConference(confId);
+			for (ActorRef actor : attendeeActorMap.values()){
 				actor.tell(ActorMessage.destroyConference, getSelf());
 			}
 			return true;
