@@ -35,6 +35,10 @@ public class ConferenceInterceptor implements HandlerInterceptor {
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
 			Object arg2) throws Exception {
 		String confId = request.getParameter(ConferenceController.Param_Conference);
+		if (null == confId){
+			log.debug("Parameter <" + ConferenceController.Param_Conference + "> is necessary!");
+			return false;
+		}
 		ConferenceManager conferenceManager = ContextLoader.getConfereneManager();
 		if (conferenceManager.hasConference(confId)){
 			log.debug("Find Actor for conference: " + confId);
