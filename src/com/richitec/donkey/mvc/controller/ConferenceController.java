@@ -1,7 +1,6 @@
 package com.richitec.donkey.mvc.controller;
 
 import java.io.IOException;
-import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletResponse;
