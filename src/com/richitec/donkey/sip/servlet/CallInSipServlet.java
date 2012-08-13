@@ -141,13 +141,13 @@ public class CallInSipServlet extends SipServlet {
     
     private boolean joinConference(SipApplicationSession sipAppSession, SipSession userSession,
     		SipSession mediaServerSession, String sipUri, String conn, String confId){
-    	conferenceManager.addAttendeeToConference(sipUri, confId);
     	ActorRef actor = conferenceManager.getConferenceActor(confId);
     	if (null == actor){
     		log.error("Cannot get actor for conference " + confId);
     		return false;
     	}
     	
+    	conferenceManager.addAttendeeToConference(sipUri, confId);
     	actor.tell(new ActorMessage.EvtAttendeeCallInConference(sipAppSession, 
     			userSession, mediaServerSession, sipUri, conn));
     	
