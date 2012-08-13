@@ -42,6 +42,7 @@ public class AttendeeActor extends BaseActor {
 	public static final String INVITE = "INVITE";
 	public static final String BYE = "BYE";
 	
+	private String caller;
 	private String sipUri;
 	private SipFactory sipFactory;
 	private SipApplicationSession sipAppSession;
@@ -61,9 +62,10 @@ public class AttendeeActor extends BaseActor {
 	
 	private ActorRef controlChannelActor;
 	
-	public AttendeeActor(String sipUri, ActorRef controlChannelActor){
+	public AttendeeActor(String sipUri, ActorRef controlChannelActor, String caller){
 		super();
 		this.sipUri = sipUri;
+		this.caller = caller;
 		this.sipFactory = ContextLoader.getSipFactory();
 		this.config = ContextLoader.getGlobalConfig();
 		this.state = AttendeeState.INITIAL;
@@ -79,15 +81,15 @@ public class AttendeeActor extends BaseActor {
 	 * @param sipUri
 	 */
 	public AttendeeActor(SipApplicationSession sipAppSession, SipSession userSession,
-			SipSession mediaServerSession, String sipUri, String conn){
+			SipSession mediaServerSession, String sipUri, String conn, String caller){
 		super();
 		this.sipFactory = ContextLoader.getSipFactory();
 		this.config = ContextLoader.getGlobalConfig();
-		this.init(sipAppSession, userSession, mediaServerSession, sipUri, conn);
+		this.init(sipAppSession, userSession, mediaServerSession, sipUri, conn, caller);
 	}
 	
 	public void init(SipApplicationSession sipAppSession, SipSession userSession,
-			SipSession mediaServerSession, String sipUri, String conn){
+			SipSession mediaServerSession, String sipUri, String conn, String caller){
 		this.sipAppSession = sipAppSession;
 		this.isUserSessionValid = true;
 		this.userSession = userSession;
@@ -107,6 +109,13 @@ public class AttendeeActor extends BaseActor {
 			result = result + "@" + config.getSoftSwitchIP();
 		}
 		return result;
+	}
+	
+	private String getCallerSipUri(){
+		if (null == caller || caller.isEmpty()){
+			return config.getSipUri();
+		}
+		return "sip:" + caller + "@" + config.getSoftSwitchIP();
 	}
 
 	@Override
@@ -158,7 +167,7 @@ public class AttendeeActor extends BaseActor {
 		String sipUri = msg.getSipUri();
 		String conn = msg.getConn();
 		
-		this.init(sipAppSession, userSession, mediaServerSession, sipUri, conn);
+		this.init(sipAppSession, userSession, mediaServerSession, sipUri, conn, caller);
 	}
 	
 	private void onCmdJoinConference(ActorMessage.CmdJoinConference msg) throws UnsupportedEncodingException, ServletException{
@@ -196,7 +205,7 @@ public class AttendeeActor extends BaseActor {
 			mediaServerResponse = response;
 			SipApplicationSession sipAppSession = sipSession.getApplicationSession();
 			inviteUser = sipFactory.createRequest(sipAppSession, 
-					INVITE, config.getSipUri(), getMySipUri());
+					INVITE, getCallerSipUri(), getMySipUri());
 			
 			inviteUser.setContent(response.getContent(), response.getContentType());
 			

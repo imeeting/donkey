@@ -23,11 +23,12 @@ public class ActorManager {
 		return actorSystem.actorFor("/user/" + confId);
 	}
 	
-	public ActorRef createConference(final String confId, final String appId, final String reqId) {
+	public ActorRef createConference(
+			final String confId, final String appId, final String reqId, final String caller) {
 		ActorRef actor = actorSystem.actorOf(new Props(new UntypedActorFactory(){
 			@Override
 			public Actor create() {
-				return new ConferenceActor(confId, appId, reqId);
+				return new ConferenceActor(confId, appId, reqId, caller);
 			}
 		}), confId);
 		

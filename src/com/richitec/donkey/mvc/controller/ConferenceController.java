@@ -36,6 +36,7 @@ public class ConferenceController {
 	public static final String Param_DeleteWhen = "deleteWhen";
 	public static final String Param_SipUri = "sipuri";
 	public static final String Param_SipUriList = "sipuriList";
+	public static final String Param_Caller = "caller";
 	
 	private ActorManager actorManager;
 	private ConferenceManager conferenceManager;
@@ -51,6 +52,7 @@ public class ConferenceController {
 		HttpServletResponse response,
 		@RequestParam(value=Param_Conference, required=false) String confId,
 		@RequestParam(value=Param_DeleteWhen, defaultValue="nocontrol") String deleteWhen,
+		@RequestParam(value=Param_Caller, required=false) String caller,
 		@RequestParam(value=Param_SipUriList, required=false) String sipUriList,
 		@RequestParam(value=Param_AppId) String appId,
 		@RequestParam(value=Param_RequestId) String reqId) throws IOException, JSONException{
@@ -61,7 +63,7 @@ public class ConferenceController {
 		
 		ActorRef actor = conferenceManager.getConferenceActor(confId);
 		if (null == actor){
-			actor = actorManager.createConference(confId, appId, reqId);
+			actor = actorManager.createConference(confId, appId, reqId, caller);
 			conferenceManager.addConferenceActor(confId, actor);
 			actor.tell(new ActorMessage.CmdCreateConference(deleteWhen));
 			if (null != sipUriList && sipUriList.length()>0){

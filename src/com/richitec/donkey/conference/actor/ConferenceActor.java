@@ -39,6 +39,7 @@ public class ConferenceActor extends UntypedActor {
 	private String appId;
 	private String confId;
 	private String reqId;
+	private String caller;
 	
 	private String notifyUrl;
 	
@@ -46,11 +47,12 @@ public class ConferenceActor extends UntypedActor {
 	private Map<String, ActorRef> attendeeActorMap;
 	private DonkeyThreadPool threadPool;
 	
-	public ConferenceActor(String confId, String appId, String reqId){
+	public ConferenceActor(String confId, String appId, String reqId, String caller){
 		super();
 		this.confId = confId;
 		this.appId = appId;
 		this.reqId = reqId;
+		this.caller = caller;
 		this.attendeeActorMap = new HashMap<String, ActorRef>();
 		this.threadPool = ContextLoader.getThreadPool();
 		
@@ -170,7 +172,7 @@ public class ConferenceActor extends UntypedActor {
 			actor = getContext().actorOf(new Props(new UntypedActorFactory() {
 				@Override
 				public Actor create() {
-					return new AttendeeActor(sipUri, controlChannelActor);
+					return new AttendeeActor(sipUri, controlChannelActor, caller);
 				}
 			}), sipUri);
 			
@@ -248,7 +250,7 @@ public class ConferenceActor extends UntypedActor {
 				@Override
 				public Actor create() {
 					return new AttendeeActor(sipAppSession, 
-							userSession, mediaServerSession, sipUri, conn);
+							userSession, mediaServerSession, sipUri, conn, caller);
 				}
 			}), sipUri);
 			getContext().watch(actor);
