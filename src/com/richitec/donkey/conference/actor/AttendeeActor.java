@@ -97,6 +97,7 @@ public class AttendeeActor extends BaseActor {
 		this.mediaServerSession = mediaServerSession;
 		this.sipUri = sipUri;
 		this.conn = conn;
+		this.caller = caller;
 		this.state = AttendeeState.CONFIRMED;
 	}
 	
