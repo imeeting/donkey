@@ -249,7 +249,8 @@ public class AttendeeActor extends BaseActor {
 			return;
 		}
 		
-		if (response.getStatus() ==  SipServletResponse.SC_SESSION_PROGRESS){
+		if (response.getStatus() ==  SipServletResponse.SC_SESSION_PROGRESS &&
+			response.getContent() != null){
 			SipServletRequest ack = mediaServerResponse.createAck();
 			ack.setContent(response.getContent(), response.getContentType());
 			send(ack);
