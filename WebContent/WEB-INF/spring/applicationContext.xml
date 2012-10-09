@@ -73,6 +73,9 @@
 		<property name="inputConferenceVoice">
 			<value>${donkey.mediaServer.voice.inputconference}</value>
 		</property>
+        <property name="joinConfNoticeVoice">
+            <value>${donkey.mediaServer.voice.joinnotice}</value>
+        </property>		
 	</bean>
 	
 	<bean id="mysql_connection_pool" 
