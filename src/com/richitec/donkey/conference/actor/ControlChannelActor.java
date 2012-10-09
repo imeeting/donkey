@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.net.InetSocketAddress;
 import java.util.List;
 
@@ -28,6 +29,7 @@ import org.xml.sax.SAXException;
 
 import com.ivyinfo.util.RandomString;
 import com.richitec.donkey.ContextLoader;
+import com.richitec.donkey.MSMLHelper;
 import com.richitec.donkey.conference.GlobalConfig;
 import com.richitec.donkey.conference.message.ActorMessage;
 import com.richitec.donkey.conference.message.ActorMessage.CreateControlChannelComplete;
@@ -35,6 +37,7 @@ import com.richitec.donkey.conference.message.sip.SendSipRequestCompleteMsg;
 import com.richitec.donkey.conference.message.sip.SendSipRequestErrorMsg;
 import com.richitec.donkey.msml.AudiomixType;
 import com.richitec.donkey.msml.GainAgcDatatype;
+import com.richitec.donkey.msml.Play;
 import com.richitec.donkey.msml.AudiomixType.Asn;
 import com.richitec.donkey.msml.AudiomixType.NLoudest;
 import com.richitec.donkey.msml.Msml;
@@ -93,6 +96,7 @@ public class ControlChannelActor extends BaseActor {
 	private String confId;
 	
 	private GlobalConfig config;
+	private MSMLHelper msml;
 	
 	private enum State {EARLY, INVITE, CHANNEL_CREATED, CONF_CREATED};
 	private State state = State.EARLY;
@@ -110,6 +114,7 @@ public class ControlChannelActor extends BaseActor {
 		this.jc = JAXBContext.newInstance(Msml.class);
 		this.ju = jc.createUnmarshaller();
 		this.jm = jc.createMarshaller();
+		this.msml = ContextLoader.getMSMLHelper();
 	}
 	
 	private void transition(State next){
@@ -160,17 +165,21 @@ public class ControlChannelActor extends BaseActor {
 	}
 	
 	private void sendInfo(Object msmlRequest) throws JAXBException, UnsupportedEncodingException{
-		Msml msml = new Msml();
-		msml.getMsmlRequest().add(msmlRequest);
-		
 		SipServletRequest info = controlSession.createRequest(INFO);
-		OutputStream os = new ByteArrayOutputStream();
-		jm.marshal(msml, os);
-		info.setContent(os.toString(), MSML_CONTENT_TYPE);
+		String msmlContent = msml.createMsml(msmlRequest);
+		
+		info.setContent(msmlContent, MSML_CONTENT_TYPE);
 		if (msmlRequest instanceof Msml.Destroyconference){
 			destroyInfoCSeq = info.getHeader(Cseq);
 			log.debug("\nCSeq of INFO <destroyconference> : " + destroyInfoCSeq);
 		}
+		send(info);	
+	}
+	
+	private void sendInfo(Object [] msmlRequest) throws JAXBException, UnsupportedEncodingException{
+		SipServletRequest info = controlSession.createRequest(INFO);
+		String msmlContent = msml.createMsml(msmlRequest);
+		info.setContent(msmlContent, MSML_CONTENT_TYPE);
 		send(info);	
 	}
 	
@@ -320,7 +329,14 @@ public class ControlChannelActor extends BaseActor {
 		join.setId1(mediaServerConfId);
 		join.setId2("conn:" + msg.getConn());
 		
-		sendInfo(join);
+		Msml.Dialogstart dialogstart = msml.createDialogStart(mediaServerConfId);
+    	Play play = msml.createPlay(config.getJoinConfNoticeVoice(), null);
+    	Msml.Dialogstart.Group group = new Msml.Dialogstart.Group ();
+    	group.setTopology();
+    	group.setPlay(play);
+    	dialogstart.setGroup(group);
+    	
+    	sendInfo(new Object [] {dialogstart, join});
 	}
 	
 	private void onCmdMuteAttendee(ActorMessage.CmdMuteAttendee msg) throws UnsupportedEncodingException, JAXBException{
