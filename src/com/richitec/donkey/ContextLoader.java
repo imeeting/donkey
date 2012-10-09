@@ -63,4 +63,8 @@ public class ContextLoader extends ContextLoaderListener {
 	public static ApplicationDAO getApplicationDAO() {
 		return (ApplicationDAO) context.getBean("application_dao");
 	}
+	
+	public static MSMLHelper getMSMLHelper(){
+		return (MSMLHelper) context.getBean("msml_helper");
+	}
 }

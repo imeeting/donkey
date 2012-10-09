@@ -36,6 +36,9 @@
 	<bean id="actor_manager" class="com.richitec.donkey.conference.actor.ActorManager">
 	</bean>	
 	
+	<bean id="msml_helper" class="com.richitec.donkey.MSMLHelper">
+	</bean>
+	
 	<bean id="global_config" class="com.richitec.donkey.conference.GlobalConfig">
 		<property name="sipUri">
 			<value>${donkey.sipUri}</value>
