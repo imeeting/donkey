@@ -6,4 +6,5 @@
 *.war
 *.ear
 build
+.settings/*
 
