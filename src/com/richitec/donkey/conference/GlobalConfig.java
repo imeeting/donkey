@@ -15,6 +15,7 @@ public class GlobalConfig {
 	private String inputConferenceVoice;
 	private String delayVoice;
 	private String joinConfNoticeVoice;
+	private String hangupNoticeVoice;
 	
 	public void setSipUri(String sipUri){
 		this.sipUri = sipUri;
@@ -110,5 +111,13 @@ public class GlobalConfig {
 	
 	public String getJoinConfNoticeVoice(){
 		return this.joinConfNoticeVoice;
+	}
+	
+	public void setHangupNoticeVoice(String voice){
+	    this.hangupNoticeVoice = voice;
+	}
+	
+	public String getHangupNoticeVoice(){
+	    return this.hangupNoticeVoice;
 	}
 }

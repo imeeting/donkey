@@ -76,6 +76,9 @@
         <property name="joinConfNoticeVoice">
             <value>${donkey.mediaServer.voice.joinnotice}</value>
         </property>		
+        <property name="hangupNoticeVoice">
+            <value>${donkey.mediaServer.voice.hangupnotice}</value>
+        </property>             
 	</bean>
 	
 	<bean id="mysql_connection_pool" 
