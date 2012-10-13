@@ -251,16 +251,17 @@ public class AttendeeActor extends BaseActor {
 		}
 		
 		if (this.state != AttendeeState.INVITE_USER){
-		    log.warn("Cannot send ACK to media server at state " + this.state);
 		    return;
 		}
 		
-		if (response.getStatus() ==  SipServletResponse.SC_SESSION_PROGRESS &&
-			response.getContent() != null){
-		    this.state = AttendeeState.ACK_MS;
-			SipServletRequest ack = mediaServerResponse.createAck();
-			ack.setContent(response.getContent(), response.getContentType());
-			send(ack);
+		if (response.getStatus() ==  SipServletResponse.SC_SESSION_PROGRESS ||
+		    response.getStatus() == SipServletResponse.SC_RINGING) {
+			if (response.getContent() != null){
+    		    this.state = AttendeeState.ACK_MS;
+    			SipServletRequest ack = mediaServerResponse.createAck();
+    			ack.setContent(response.getContent(), response.getContentType());
+    			send(ack);
+			}
 		}
 	}
 
