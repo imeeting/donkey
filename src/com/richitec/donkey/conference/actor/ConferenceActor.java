@@ -287,6 +287,7 @@ public class ConferenceActor extends UntypedActor {
 	
 	private void onEvtAttendeeCallTerminated(ActorMessage.EvtAttendeeCallTerminated msg){
 		notify(new NotifyMessage.AttendeeCallTerminated(msg.getSipUri()));
+		controlChannelActor.tell(msg, getSelf());
 	}
 	
 	private void onEvtControlChannelTerminated(ActorMessage.EvtControlChannelTerminated msg){

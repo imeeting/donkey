@@ -1,12 +1,9 @@
 package com.richitec.donkey.conference.actor;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Array;
 import java.net.InetSocketAddress;
 import java.util.List;
 
@@ -58,7 +55,6 @@ public class ControlChannelActor extends BaseActor {
 	
 	public static final String Name = "controlChannel";
 	public static final String Actor = "actor";
-	public static final String ConferenceActor = "conferenceActor";
 	public static final String NoMedia = "nomedia";
 	public static final String NoControl = "nocontrol";
 	public static final String INVITE = "INVITE";
@@ -101,7 +97,9 @@ public class ControlChannelActor extends BaseActor {
 	private enum State {EARLY, INVITE, CHANNEL_CREATED, CONF_CREATED};
 	private State state = State.EARLY;
 	
+	public static final String ConferenceActor = "conferenceActor";
 	public static final String ExpireMinutes = "expire_minutes";
+	public static final String JoinCount = "join_count";
 	
 	public ControlChannelActor(String confId) throws JAXBException{
 		super();
@@ -154,8 +152,9 @@ public class ControlChannelActor extends BaseActor {
 		} else
 		if (msg instanceof ActorMessage.SipSessionReadyToInvalidate) {
 			onSipSessionReadyToInvalidate((ActorMessage.SipSessionReadyToInvalidate) msg);
-		} else 
-		if (msg instanceof SendSipRequestCompleteMsg){
+		} else if (msg instanceof ActorMessage.EvtAttendeeCallTerminated) {
+		    onEvtAttendeeCallTerminated((ActorMessage.EvtAttendeeCallTerminated) msg);
+		} else if (msg instanceof SendSipRequestCompleteMsg){
 			onSendSipRequestCompleteMsg((SendSipRequestCompleteMsg) msg);
 		} else if (msg instanceof SendSipRequestErrorMsg) {
 			onSendSipRequestErrorMsg((SendSipRequestErrorMsg) msg);
@@ -338,6 +337,17 @@ public class ControlChannelActor extends BaseActor {
     	
     	sendInfo(new Object [] {dialogstart, join});
 	}
+	
+    private void onEvtAttendeeCallTerminated(ActorMessage.EvtAttendeeCallTerminated msg) throws UnsupportedEncodingException, JAXBException{
+        Msml.Dialogstart dialogstart = msml.createDialogStart(mediaServerConfId);
+        Play play = msml.createPlay(config.getHangupNoticeVoice(), null);
+        Msml.Dialogstart.Group group = new Msml.Dialogstart.Group ();
+        group.setTopology();
+        group.setPlay(play);
+        dialogstart.setGroup(group);
+        
+        sendInfo(dialogstart);
+    }	
 	
 	private void onCmdMuteAttendee(ActorMessage.CmdMuteAttendee msg) throws UnsupportedEncodingException, JAXBException{
 		Msml.Modifystream modifyStream = new Msml.Modifystream();
