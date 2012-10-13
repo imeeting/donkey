@@ -124,10 +124,12 @@ public class B2BUASIPServlet extends SipServlet {
     	SipSession session = resp.getSession(false);
     	ActorRef actor = (ActorRef) session.getAttribute(AttendeeActor.Actor);
     	actor.tell(new ActorMessage.SipErrorResponse(resp));
-    	
+    	/*
+    	// Sailfin will send ACK automatically, it's unnecessary to send ACK by ourself.
     	if (resp.getStatus() != SipServletResponse.SC_REQUEST_TIMEOUT){
     		SipServletRequest ack = resp.createAck();
     		ack.send();
     	}
+    	*/
 	}    
 }
