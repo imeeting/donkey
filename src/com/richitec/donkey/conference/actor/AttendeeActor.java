@@ -28,8 +28,9 @@ public class AttendeeActor extends BaseActor {
 	
 	public enum AttendeeState {
 		INITIAL, 
-		CALL_MS, 
-		CALL_USER, 
+		INVITE_MS, 
+		INVITE_USER, 
+		ACK_MS,
 		CALL_FAILED, 
 		CONFIRMED, 
 		TERM_WAIT, 
@@ -193,7 +194,7 @@ public class AttendeeActor extends BaseActor {
 		InetSocketAddress address = new InetSocketAddress(outboundIPAddr, port);
 		mediaServerSession.setOutboundInterface(address);
 		
-		this.state = AttendeeState.CALL_MS;
+		this.state = AttendeeState.INVITE_MS;
 		this.isMediaServerSessionValid = true;
 		
 		send(inviteMediaServer);
@@ -226,7 +227,7 @@ public class AttendeeActor extends BaseActor {
 			
 			userSession.setHandler(B2BUASIPServlet.class.getSimpleName());
 			
-			this.state = AttendeeState.CALL_USER;
+			this.state = AttendeeState.INVITE_USER;
 			this.isUserSessionValid = true;
 			
 			send(inviteUser);
@@ -249,8 +250,14 @@ public class AttendeeActor extends BaseActor {
 			return;
 		}
 		
+		if (this.state != AttendeeState.INVITE_USER){
+		    log.warn("Cannot send ACK to media server at state " + this.state);
+		    return;
+		}
+		
 		if (response.getStatus() ==  SipServletResponse.SC_SESSION_PROGRESS &&
 			response.getContent() != null){
+		    this.state = AttendeeState.ACK_MS;
 			SipServletRequest ack = mediaServerResponse.createAck();
 			ack.setContent(response.getContent(), response.getContentType());
 			send(ack);
@@ -331,13 +338,13 @@ public class AttendeeActor extends BaseActor {
 			bye(mediaServerSession);
 			bye(userSession);
 		} else 
-		if (this.state == AttendeeState.CALL_USER){
+		if (this.state == AttendeeState.INVITE_USER){
 			this.state = AttendeeState.TERM_WAIT;
 			//cancel(inviteUser);
 			bye(mediaServerSession);
 			bye(userSession);
 		} else
-		if (this.state == AttendeeState.CALL_MS){
+		if (this.state == AttendeeState.INVITE_MS){
 			this.state = AttendeeState.TERM_WAIT;
 			//cancel(inviteMediaServer);
 			bye(mediaServerSession);
@@ -359,10 +366,10 @@ public class AttendeeActor extends BaseActor {
 	private void onCmdDestroyConference(ActorMessage.CmdDestroyConference msg){
 		if (this.state == AttendeeState.INITIAL){
 			getContext().stop(getSelf());
-		} else if (this.state == AttendeeState.CALL_MS) {
+		} else if (this.state == AttendeeState.INVITE_MS) {
 			this.state = AttendeeState.DESTROY;
 			bye(mediaServerSession);
-		} else if (this.state == AttendeeState.CALL_USER) {
+		} else if (this.state == AttendeeState.INVITE_USER) {
 			this.state = AttendeeState.DESTROY;
 			bye(mediaServerSession);
 			bye(userSession);
