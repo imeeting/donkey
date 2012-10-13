@@ -286,6 +286,12 @@ public class ConferenceActor extends UntypedActor {
 	}
 	
 	private void onEvtAttendeeCallTerminated(ActorMessage.EvtAttendeeCallTerminated msg){
+        if (this.state != State.Created){
+            log.error("Cannot process Call Terminated of <" + msg.getSipUri() + 
+                    "> to conference <" + confId +
+                    "> when ConferenceActor state is " + this.state.name());
+            return;
+        }	    
 		notify(new NotifyMessage.AttendeeCallTerminated(msg.getSipUri()));
 		controlChannelActor.tell(msg, getSelf());
 	}
