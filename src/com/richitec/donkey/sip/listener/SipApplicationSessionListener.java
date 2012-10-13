@@ -72,7 +72,9 @@ public class SipApplicationSessionListener
 		    return;
 		}
 		
+		log.debug("Conference <" + confId + "> JoinCount = " + joinCount);
 		if (joinCount > 0){
+		    sipAppSession.setAttribute(ControlChannelActor.EmptyCount, 0);
 		    return;
 		}
 		

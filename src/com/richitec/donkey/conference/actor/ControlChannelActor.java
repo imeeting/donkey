@@ -367,7 +367,7 @@ public class ControlChannelActor extends BaseActor {
     
     private Integer decJoinCount(){
         Integer joinCount = (Integer) sipAppSession.getAttribute(JoinCount);
-        joinCount = joinCount - 1;
+        joinCount = (joinCount>0) ? joinCount-1 : 0;
         sipAppSession.setAttribute(JoinCount, joinCount);
         return joinCount;
      }
