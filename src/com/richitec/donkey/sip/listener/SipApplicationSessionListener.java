@@ -18,13 +18,15 @@ public class SipApplicationSessionListener
 	private static final Log log = LogFactory.getLog(SipApplicationSessionListener.class);
 	
 	@Override
-	public void sessionCreated(SipApplicationSessionEvent ev) {
-		log.debug("\nAPP SESSION <" + ev.getApplicationSession().getId() + "> Created");
+	public void sessionCreated(SipApplicationSessionEvent ev) {	    
+		log.debug("\nControl Channel Session <" 
+		        + ev.getApplicationSession().getId() + "> Created");
 	}
 
 	@Override
 	public void sessionDestroyed(SipApplicationSessionEvent ev) {
-		log.debug("\nAPP SESSION <" + ev.getApplicationSession().getId() + "> Destroyed");
+        log.debug("\nControl Channel Session <" 
+                + ev.getApplicationSession().getId() + "> Destroyed");
 	}
 
 	/**
@@ -38,30 +40,75 @@ public class SipApplicationSessionListener
 		
 		Integer expireMinutes =
 			(Integer) sipAppSession.getAttribute(ControlChannelActor.ExpireMinutes);
+		
 		if (null == expireMinutes){
 			//this SipApplicationSession is not control channel
 			sipAppSession.setExpires(10);
-		} else {
-			//control channel SipApplicationSession
-			if (expireMinutes > 0){
-				expireMinutes -= 1;
-				sipAppSession.setAttribute(ControlChannelActor.ExpireMinutes, expireMinutes);
-				sipAppSession.setExpires(1);
-				if (expireMinutes <= 0){
-					log.warn("\nAPP SESSION <" + sipAppSession.getId() + "> Expired");
-					ActorRef actor = 
-						(ActorRef) sipAppSession.getAttribute(ControlChannelActor.ConferenceActor);
-					if (null != actor){
-						actor.tell(ActorMessage.controlChannelExpired);
-					}
-				}
-			}
+			return;
 		}
+		
+		//control channel SipApplicationSession
+		if (expireMinutes > 0){
+			expireMinutes -= 1;
+			sipAppSession.setAttribute(ControlChannelActor.ExpireMinutes, expireMinutes);
+			sipAppSession.setExpires(1);
+		}
+		
+		String confId = 
+            (String) sipAppSession.getAttribute(ControlChannelActor.ConferenceId);
+	      
+		if (expireMinutes <= 0){
+		    log.warn("\nAPP SESSION <" + sipAppSession.getId() + 
+		            "> of Conference <"+ confId + "> Expired");
+		    destroyConference(sipAppSession);
+		    return;
+		}
+		
+		Integer joinCount = 
+		    (Integer) sipAppSession.getAttribute(ControlChannelActor.JoinCount);
+		if (null == joinCount){
+            log.error("Cannot get JoinCount of APP SESSION <" 
+                    + sipAppSession.getId() + "> of Conference <" + confId + ">");
+		    return;
+		}
+		
+		if (joinCount > 0){
+		    return;
+		}
+		
+		//joinCount <= 0
+		Integer emptyCount = 
+		    (Integer) sipAppSession.getAttribute(ControlChannelActor.EmptyCount);
+		
+		emptyCount = (null == emptyCount) ? 0 : emptyCount+1;
+		if (emptyCount < 5){
+		    sipAppSession.setAttribute(ControlChannelActor.EmptyCount, emptyCount);
+		    return;
+		}
+		
+		log.warn("Not any phone call at least " + emptyCount + " Minutes, " +
+				"so destroy conference <" + confId + ">");
+		destroyConference(sipAppSession);
 	}
 
 	@Override
 	public void sessionReadyToInvalidate(SipApplicationSessionEvent ev) {
-		log.debug("\nAPP SESSION <" + ev.getApplicationSession().getId() + "> ReadyToInvalidate");	
+	    SipApplicationSession sipAppSession = ev.getApplicationSession();
+	    String confId = 
+            (String) sipAppSession.getAttribute(ControlChannelActor.ConferenceId);
+		log.debug("\nConference <" + confId + 
+		        "> Control Channel Session <" + ev.getApplicationSession().getId() + "> ReadyToInvalidate");	
 	}
 
+	private void destroyConference(SipApplicationSession sipAppSession){
+        ActorRef actor = 
+            (ActorRef) sipAppSession.getAttribute(ControlChannelActor.ConferenceActor);
+        if (null != actor){
+            actor.tell(ActorMessage.controlChannelExpired);
+        } else {
+            //will be never happened
+            log.error("Cannot get ConferenceActor of APP SESSION <" 
+                    + sipAppSession.getId() + ">");
+        }
+	}
 }

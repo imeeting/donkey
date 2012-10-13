@@ -98,8 +98,10 @@ public class ControlChannelActor extends BaseActor {
 	private State state = State.EARLY;
 	
 	public static final String ConferenceActor = "conferenceActor";
+	public static final String ConferenceId = "conference_id";
 	public static final String ExpireMinutes = "expire_minutes";
 	public static final String JoinCount = "join_count";
+	public static final String EmptyCount = "empty_count";
 	
 	public ControlChannelActor(String confId) throws JAXBException{
 		super();
@@ -108,7 +110,10 @@ public class ControlChannelActor extends BaseActor {
 		this.sipFactory = ContextLoader.getSipFactory();
 		this.sipAppSession = sipFactory.createApplicationSession();
 		this.sipAppSession.setAttribute(ConferenceActor, getContext().parent());
+		this.sipAppSession.setAttribute(ConferenceId, confId);
 		this.sipAppSession.setAttribute(ExpireMinutes, config.getExpire());
+		this.sipAppSession.setAttribute(JoinCount, 0);
+		this.sipAppSession.setAttribute(EmptyCount, 0);
 		this.jc = JAXBContext.newInstance(Msml.class);
 		this.ju = jc.createUnmarshaller();
 		this.jm = jc.createMarshaller();
@@ -336,6 +341,15 @@ public class ControlChannelActor extends BaseActor {
     	dialogstart.setGroup(group);
     	
     	sendInfo(new Object [] {dialogstart, join});
+    	
+    	incJoinCount();
+	}
+	
+	private Integer incJoinCount(){
+       Integer joinCount = (Integer) sipAppSession.getAttribute(JoinCount);
+       joinCount = joinCount + 1;
+       sipAppSession.setAttribute(JoinCount, joinCount);
+       return joinCount;
 	}
 	
     private void onEvtAttendeeCallTerminated(ActorMessage.EvtAttendeeCallTerminated msg) throws UnsupportedEncodingException, JAXBException{
@@ -347,7 +361,16 @@ public class ControlChannelActor extends BaseActor {
         dialogstart.setGroup(group);
         
         sendInfo(dialogstart);
-    }	
+        
+        decJoinCount();
+    }
+    
+    private Integer decJoinCount(){
+        Integer joinCount = (Integer) sipAppSession.getAttribute(JoinCount);
+        joinCount = joinCount - 1;
+        sipAppSession.setAttribute(JoinCount, joinCount);
+        return joinCount;
+     }
 	
 	private void onCmdMuteAttendee(ActorMessage.CmdMuteAttendee msg) throws UnsupportedEncodingException, JAXBException{
 		Msml.Modifystream modifyStream = new Msml.Modifystream();
