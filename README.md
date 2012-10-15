@@ -1,4 +1,4 @@
 donkey
 ======
 
-phone conference
+__SIP__ based conference.
