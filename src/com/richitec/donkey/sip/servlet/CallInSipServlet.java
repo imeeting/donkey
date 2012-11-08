@@ -322,7 +322,7 @@ public class CallInSipServlet extends SipServlet {
     	mediaServerSession.setAttribute(USER_SIPURI, uri);
     	log.debug("From URI: " + uri);
     	Set<String> confSet = conferenceManager.getConferenceByAttendee(uri);
-    	if (null == confSet || confSet.size() < 1){
+    	if (null == confSet || confSet.size() <= 1){
     		log.warn("Find no conference for " + uri);
     		mediaServerSession.setAttribute(SESSION_STATE, State.NoConference);
     		collectDtmf(mediaServerSession);
