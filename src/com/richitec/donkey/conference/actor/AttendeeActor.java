@@ -11,6 +11,7 @@ import javax.servlet.sip.SipFactory;
 import javax.servlet.sip.SipServletRequest;
 import javax.servlet.sip.SipServletResponse;
 import javax.servlet.sip.SipSession;
+import javax.servlet.sip.SipSession.State;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -288,17 +289,13 @@ public class AttendeeActor extends BaseActor {
 	}
 	
 	private void onSipByeRequest(ActorMessage.SipByeRequest msg){
-		this.state = AttendeeState.TERM_WAIT;
+	    this.state = AttendeeState.TERM_WAIT;
 		SipSession session = msg.getSipSession();
-		SipServletRequest bye = null;
 		if (session.equals(userSession)){
-			bye = mediaServerSession.createRequest(BYE);
+		    getContext().parent().tell(new ActorMessage.EvtAttendeeCallTerminated(sipUri), getSelf());
+		    bye(mediaServerSession);
 		} else if (session.equals(mediaServerSession)){
-			bye = userSession.createRequest(BYE);
-		}
-		
-		if (null != bye){
-			send(bye);
+		    bye(userSession);
 		}
 	}
 	
@@ -360,8 +357,18 @@ public class AttendeeActor extends BaseActor {
 	}
 	
 	private void bye(SipSession session){
-		SipServletRequest bye = session.createRequest(BYE);
-		send(bye);
+	    if (session.equals(userSession)){
+	        getContext().parent().tell(new ActorMessage.EvtAttendeeCallTerminated(sipUri), getSelf());
+	    }
+	    
+	    if (State.EARLY == session.getState() ||
+	        State.CONFIRMED == session.getState()){
+	        SipServletRequest bye = session.createRequest(BYE);
+	        send(bye);
+	    } else {
+	        onSipSessionReadyToInvalidate(session);
+	        session.invalidate();
+	    }
 	}
 	
 	private void cancel(SipServletRequest request){
@@ -393,9 +400,12 @@ public class AttendeeActor extends BaseActor {
 			this.state = AttendeeState.DESTROY;
 		} 
 	}
-
+	
 	private void onSipSessionReadyToInvalidate(ActorMessage.SipSessionReadyToInvalidate msg){
-		SipSession session = msg.getSipSession();
+	    onSipSessionReadyToInvalidate(msg.getSipSession());
+	}
+
+	private void onSipSessionReadyToInvalidate(SipSession session){
 		if (session.equals(mediaServerSession)){
 			isMediaServerSessionValid = false;
 			log.debug("\nAttendeeActor <" + sipUri + "> Media Server Session ReadyToInvalidate.");
@@ -405,16 +415,13 @@ public class AttendeeActor extends BaseActor {
 		}
 		
 		if (!isMediaServerSessionValid && !isUserSessionValid){
-			if (this.state == AttendeeState.TERM_WAIT || this.state == AttendeeState.CONFIRMED) {
+			if (this.state == AttendeeState.TERM_WAIT || this.state == AttendeeState.CONFIRMED ||
+			    this.state == AttendeeState.CALL_FAILED || this.state == AttendeeState.ACK_MS) {
 				this.state = AttendeeState.INITIAL;
-				getContext().parent().tell(new ActorMessage.EvtAttendeeCallTerminated(sipUri), getSelf());
-			} else if (this.state == AttendeeState.CALL_FAILED ||
-			        this.state == AttendeeState.ACK_MS) {
-				this.state = AttendeeState.INITIAL;
-			} else if (this.state == AttendeeState.DESTROY){
+			} else 
+			if (this.state == AttendeeState.DESTROY){
 				getContext().stop(getSelf());
 			} else {
-			    getContext().stop(getSelf());
 				log.error("Invalid AttendeeState <" + this.state.name() + "> onSipSessionReadyToInvalidate");
 			}
 		}
