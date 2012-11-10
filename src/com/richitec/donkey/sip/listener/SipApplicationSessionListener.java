@@ -19,13 +19,13 @@ public class SipApplicationSessionListener
 	
 	@Override
 	public void sessionCreated(SipApplicationSessionEvent ev) {	    
-		log.debug("\nControl Channel Session <" 
+		log.debug("\nSIP APP Session <" 
 		        + ev.getApplicationSession().getId() + "> Created");
 	}
 
 	@Override
 	public void sessionDestroyed(SipApplicationSessionEvent ev) {
-        log.debug("\nControl Channel Session <" 
+        log.debug("\nSIP APP Session <" 
                 + ev.getApplicationSession().getId() + "> Destroyed");
 	}
 
@@ -99,7 +99,7 @@ public class SipApplicationSessionListener
 	    String confId = 
             (String) sipAppSession.getAttribute(ControlChannelActor.ConferenceId);
 		log.debug("\nConference <" + confId + 
-		        "> Control Channel Session <" + ev.getApplicationSession().getId() + "> ReadyToInvalidate");	
+		        "> SIP APP Session <" + ev.getApplicationSession().getId() + "> ReadyToInvalidate");	
 	}
 
 	private void destroyConference(SipApplicationSession sipAppSession){
