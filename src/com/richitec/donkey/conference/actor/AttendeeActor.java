@@ -379,6 +379,10 @@ public class AttendeeActor extends BaseActor {
 			this.state = AttendeeState.DESTROY;
 			bye(mediaServerSession);
 			bye(userSession);
+		} else if (this.state == AttendeeState.ACK_MS){
+		    this.state = AttendeeState.DESTROY;
+            bye(mediaServerSession);
+            bye(userSession);		    
 		} else if (this.state == AttendeeState.CONFIRMED) {
 			this.state = AttendeeState.DESTROY;
 			bye(mediaServerSession);
