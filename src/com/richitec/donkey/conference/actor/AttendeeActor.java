@@ -349,6 +349,11 @@ public class AttendeeActor extends BaseActor {
 			this.state = AttendeeState.TERM_WAIT;
 			//cancel(inviteMediaServer);
 			bye(mediaServerSession);
+		} else 
+		if (this.state == AttendeeState.ACK_MS) {
+		    this.state = AttendeeState.TERM_WAIT;
+		    bye(userSession);
+		    bye(mediaServerSession);
 		} else {
 			getSender().tell(new ActorMessage.ErrAttendeeStatusConflict(msg.getMethod(), sipUri, state));			
 		}
@@ -374,6 +379,10 @@ public class AttendeeActor extends BaseActor {
 			this.state = AttendeeState.DESTROY;
 			bye(mediaServerSession);
 			bye(userSession);
+		} else if (this.state == AttendeeState.ACK_MS){
+		    this.state = AttendeeState.DESTROY;
+            bye(mediaServerSession);
+            bye(userSession);		    
 		} else if (this.state == AttendeeState.CONFIRMED) {
 			this.state = AttendeeState.DESTROY;
 			bye(mediaServerSession);
@@ -405,6 +414,7 @@ public class AttendeeActor extends BaseActor {
 			} else if (this.state == AttendeeState.DESTROY){
 				getContext().stop(getSelf());
 			} else {
+			    getContext().stop(getSelf());
 				log.error("Invalid AttendeeState <" + this.state.name() + "> onSipSessionReadyToInvalidate");
 			}
 		}
