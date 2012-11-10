@@ -410,6 +410,7 @@ public class AttendeeActor extends BaseActor {
 			} else if (this.state == AttendeeState.DESTROY){
 				getContext().stop(getSelf());
 			} else {
+			    getContext().stop(getSelf());
 				log.error("Invalid AttendeeState <" + this.state.name() + "> onSipSessionReadyToInvalidate");
 			}
 		}
