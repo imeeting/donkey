@@ -353,6 +353,7 @@ public class ControlChannelActor extends BaseActor {
 	}
 	
     private void onEvtAttendeeCallTerminated(ActorMessage.EvtAttendeeCallTerminated msg) throws UnsupportedEncodingException, JAXBException{
+        /*
         Msml.Dialogstart dialogstart = msml.createDialogStart(mediaServerConfId);
         Play play = msml.createPlay(config.getHangupNoticeVoice(), null);
         Msml.Dialogstart.Group group = new Msml.Dialogstart.Group ();
@@ -361,7 +362,7 @@ public class ControlChannelActor extends BaseActor {
         dialogstart.setGroup(group);
         
         sendInfo(dialogstart);
-        
+        */
         decJoinCount();
     }
     
