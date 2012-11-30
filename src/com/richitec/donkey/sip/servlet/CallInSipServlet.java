@@ -40,6 +40,7 @@ import akka.actor.ActorRef;
 import com.richitec.donkey.ContextLoader;
 import com.richitec.donkey.conference.ConferenceManager;
 import com.richitec.donkey.conference.GlobalConfig;
+import com.richitec.donkey.conference.actor.AttendeeActor;
 import com.richitec.donkey.conference.message.ActorMessage;
 import com.richitec.donkey.msml.BooleanType;
 import com.richitec.donkey.msml.DialogLanguageDatatype;
@@ -453,13 +454,19 @@ public class CallInSipServlet extends SipServlet {
     @Override
     protected void doBye(SipServletRequest req) throws ServletException, IOException {
     	SipSession session = req.getSession(false);
-		SipSession linkedSession = (SipSession) session.getAttribute(LINKED_SESSION);
-		if (null != linkedSession){	
-			SipServletRequest bye = linkedSession.createRequest(BYE);
-			bye.send();
-		} else {
-			log.error("Cannot find linked session!");
-		}
+	    ActorRef actor = (ActorRef) session.getAttribute(AttendeeActor.Actor);
+	    if (null != actor){
+	        actor.tell(new ActorMessage.SipByeRequest(session));
+	    } else {
+	        log.error("AttendeeActor == null for SIP session " + session.getId());
+	        SipSession linkedSession = (SipSession) session.getAttribute(LINKED_SESSION);
+	        if (null != linkedSession){ 
+	            SipServletRequest bye = linkedSession.createRequest(BYE);
+	            bye.send();
+	        } else {
+	            log.error("Cannot find linked session!");
+	        }	        
+	    }
 		
     	SipServletResponse resp = req.createResponse(SipServletResponse.SC_OK);
     	resp.send();
